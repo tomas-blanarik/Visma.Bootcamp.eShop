@@ -1,6 +1,9 @@
-﻿using System;
+﻿using NSubstitute;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
+using Visma.Bootcamp.eShop.ApplicationCore.Services.Interfaces;
 using Visma.Bootcamp.eShop.Controllers;
 using Xunit;
 
@@ -8,16 +11,17 @@ namespace Visma.Bootcamp.eShop.Tests.Controllers
 {
     public class ProductsControllerTests
     {
-
+        private IProductService subProductService;
 
         public ProductsControllerTests()
         {
-
+            this.subProductService = Substitute.For<IProductService>();
         }
 
         private ProductsController CreateProductsController()
         {
-            return new ProductsController();
+            return new ProductsController(
+                this.subProductService);
         }
 
         [Fact]
@@ -25,10 +29,12 @@ namespace Visma.Bootcamp.eShop.Tests.Controllers
         {
             // Arrange
             var productsController = this.CreateProductsController();
+            Guid? productId = null;
             CancellationToken ct = default(global::System.Threading.CancellationToken);
 
             // Act
             var result = await productsController.GetProductAsync(
+                productId,
                 ct);
 
             // Assert
@@ -41,11 +47,13 @@ namespace Visma.Bootcamp.eShop.Tests.Controllers
             // Arrange
             var productsController = this.CreateProductsController();
             Guid? productId = null;
+            ProductModel model = null;
             CancellationToken ct = default(global::System.Threading.CancellationToken);
 
             // Act
             var result = await productsController.UpdateProductAsync(
                 productId,
+                model,
                 ct);
 
             // Assert
@@ -57,10 +65,12 @@ namespace Visma.Bootcamp.eShop.Tests.Controllers
         {
             // Arrange
             var productsController = this.CreateProductsController();
+            Guid? productId = null;
             CancellationToken ct = default(global::System.Threading.CancellationToken);
 
             // Act
             var result = await productsController.DeleteProductAsync(
+                productId,
                 ct);
 
             // Assert

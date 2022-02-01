@@ -21,10 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Visma.Bootcamp.eShop\Visma.Bootcamp.eShop.csproj" />
   </ItemGroup>
 

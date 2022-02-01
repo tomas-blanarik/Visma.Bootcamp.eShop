@@ -24,7 +24,7 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.DependencyInjection
         {
             AddAutoMapper(services);
             AddDatabase(services, configuration);
-            //AddLogging(services, environment);
+            AddLogging(services, environment);
             AddServices(services);
 
             return services;
@@ -57,7 +57,15 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.DependencyInjection
         {
             services.AddDbContext<ApplicationContext>(options =>
             {
-                options.UseInMemoryDatabase("Visma.Bootcamp.eShop-db");
+                string connectionString = configuration.GetConnectionString("DefaultConnection");
+                //options.UseInMemoryDatabase("Visma.Bootcamp.eShop-db");
+                options.UseMySql(
+                    connectionString,
+                    ServerVersion.AutoDetect(connectionString),
+                    opts =>
+                    {
+                        opts.MigrationsAssembly("Visma.Bootcamp.eShop.ApplicationCore");
+                    });
                 options.EnableDetailedErrors();
                 options.EnableSensitiveDataLogging();
             });

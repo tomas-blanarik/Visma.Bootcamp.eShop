@@ -1,7 +1,11 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using NSubstitute;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
+using Visma.Bootcamp.eShop.ApplicationCore.Services.Interfaces;
 using Visma.Bootcamp.eShop.Controllers;
 using Xunit;
 
@@ -9,16 +13,17 @@ namespace Visma.Bootcamp.eShop.Tests.Controllers
 {
     public class BasketControllerTests
     {
-
+        private IBasketService subBasketService;
 
         public BasketControllerTests()
         {
-
+            this.subBasketService = Substitute.For<IBasketService>();
         }
 
         private BasketController CreateBasketController()
         {
-            return new BasketController();
+            return new BasketController(
+                this.subBasketService);
         }
 
         [Fact]
@@ -45,8 +50,11 @@ namespace Visma.Bootcamp.eShop.Tests.Controllers
         {
             // Arrange
             var basketController = this.CreateBasketController();
-            Guid? basketId = null;
+            Guid? basketId = Guid.NewGuid();
             CancellationToken ct = default(global::System.Threading.CancellationToken);
+
+            // MOCK
+            subBasketService.GetAsync(Arg.Any<Guid>()).Returns(new BasketDto());
 
             // Act
             var result = await basketController.GetBasketAsync(
@@ -54,7 +62,8 @@ namespace Visma.Bootcamp.eShop.Tests.Controllers
                 ct);
 
             // Assert
-            Assert.True(false);
+            Assert.IsType<OkObjectResult>(result);
+            Assert.IsType<BasketDto>(((OkObjectResult)result).Value);
         }
 
         [Fact]

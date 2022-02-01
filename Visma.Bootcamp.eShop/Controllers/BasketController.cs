@@ -2,13 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models.Errors;
+using Visma.Bootcamp.eShop.ApplicationCore.Services.Interfaces;
 
 namespace Visma.Bootcamp.eShop.Controllers
 {
@@ -17,6 +17,15 @@ namespace Visma.Bootcamp.eShop.Controllers
     [Route("api/[controller]")]
     public class BasketController : ControllerBase
     {
+        private readonly IBasketService _basketService;
+
+        public BasketController(IBasketService basketService)
+        {
+            _basketService = basketService;
+        }
+
+        public const string GetBasketRouteName = "getbasket";
+
         [HttpPost("{basket_id}/items")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(BasketDto))]
         [SwaggerOperation(
@@ -29,10 +38,13 @@ namespace Visma.Bootcamp.eShop.Controllers
             [Bind, FromBody] BasketItemModel model,
             CancellationToken ct)
         {
-            return BadRequest("Not implemented");
+            return CreatedAtAction(
+                GetBasketRouteName,
+                new { basket_id = basketId },
+                await _basketService.AddItemAsync(basketId.Value, model, ct));
         }
 
-        [HttpGet("{basket_id}")]
+        [HttpGet("{basket_id}", Name = GetBasketRouteName)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BasketDto))]
         [SwaggerOperation(
             summary: "Retrieve basket",
@@ -43,34 +55,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             [Required, FromRoute(Name = "basket_id")] Guid? basketId,
             CancellationToken ct)
         {
-            return Ok(new BasketDto
-            {
-                BasketId = Guid.NewGuid(),
-                Items = new List<ProductDto>
-                {
-                    new ProductDto
-                    {
-                        ProductId = Guid.NewGuid(),
-                        Name = "test product #1",
-                        Description = "test decription #1",
-                        Price = 128.34M
-                    },
-                    new ProductDto
-                    {
-                        ProductId = Guid.NewGuid(),
-                        Name = "test product #2",
-                        Description = "test description #2",
-                        Price = 25.99M
-                    },
-                    new ProductDto
-                    {
-                        ProductId = Guid.NewGuid(),
-                        Name = "test product #3",
-                        Description = "test description #3",
-                        Price = 49.99M
-                    }
-                }
-            });
+            return Ok(await _basketService.GetAsync(basketId.Value, ct));
         }
 
         [HttpPut("{basket_id}")]
@@ -87,7 +72,8 @@ namespace Visma.Bootcamp.eShop.Controllers
             [FromBody, Bind] BasketModel model,
             CancellationToken ct)
         {
-            return BadRequest("Not implemented");
+            await _basketService.UpdateAsync(basketId.Value, model, ct);
+            return NoContent();
         }
 
         [HttpDelete("basket_id/items/{item_id}")]
@@ -104,7 +90,8 @@ namespace Visma.Bootcamp.eShop.Controllers
             [Required, FromRoute(Name = "item_id")] Guid? itemId,
             CancellationToken ct)
         {
-            return BadRequest("Not implemented");
+            await _basketService.DeleteItemAsync(basketId.Value, itemId.Value, ct);
+            return NoContent();
         }
     }
 }

@@ -4,13 +4,13 @@ using System.ComponentModel.DataAnnotations;
 namespace Visma.Bootcamp.eShop.ApplicationCore.Entities.Domain
 {
     // db entity
-    internal class Product
+    public class Product
     {
         [Key]
-        internal int Id { get; set; }
+        public int Id { get; set; }
 
         [Required]
-        public Guid? ProductId { get; set; }
+        public Guid? PublicId { get; set; }
 
         [Required, StringLength(50)]
         public string Name { get; set; }

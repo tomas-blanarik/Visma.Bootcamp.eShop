@@ -1,0 +1,11 @@
+version: '3.4'
+
+services:
+  mariadb:
+    image: mariadb
+    restart: always
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+volumes:
+  mariadb_data:

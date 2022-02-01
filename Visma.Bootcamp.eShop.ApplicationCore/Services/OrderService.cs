@@ -2,7 +2,7 @@
 
 namespace Visma.Bootcamp.eShop.ApplicationCore.Services
 {
-    internal class OrderService : IOrderService
+    public class OrderService : IOrderService
     {
 
     }

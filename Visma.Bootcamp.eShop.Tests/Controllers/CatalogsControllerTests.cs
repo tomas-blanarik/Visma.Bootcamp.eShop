@@ -1,6 +1,9 @@
-﻿using System;
+﻿using NSubstitute;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
+using Visma.Bootcamp.eShop.ApplicationCore.Services.Interfaces;
 using Visma.Bootcamp.eShop.Controllers;
 using Xunit;
 
@@ -8,16 +11,17 @@ namespace Visma.Bootcamp.eShop.Tests.Controllers
 {
     public class CatalogsControllerTests
     {
-
+        private ICatalogService subCatalogService;
 
         public CatalogsControllerTests()
         {
-
+            this.subCatalogService = Substitute.For<ICatalogService>();
         }
 
         private CatalogsController CreateCatalogsController()
         {
-            return new CatalogsController();
+            return new CatalogsController(
+                this.subCatalogService);
         }
 
         [Fact]
@@ -111,11 +115,15 @@ namespace Visma.Bootcamp.eShop.Tests.Controllers
             // Arrange
             var catalogsController = this.CreateCatalogsController();
             Guid? catalogId = null;
+            ProductModel model = null;
+            IProductService productService = null;
             CancellationToken ct = default(global::System.Threading.CancellationToken);
 
             // Act
             var result = await catalogsController.AddProductToCatalogAsync(
                 catalogId,
+                model,
+                productService,
                 ct);
 
             // Assert
