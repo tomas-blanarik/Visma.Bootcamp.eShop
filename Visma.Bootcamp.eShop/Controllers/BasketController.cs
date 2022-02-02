@@ -43,7 +43,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             [Required, FromRoute(Name = "basket_id")] Guid? basketId,
             CancellationToken ct)
         {
-            return Ok(new BasketDto
+            var basketDto = new BasketDto
             {
                 BasketId = Guid.NewGuid(),
                 Items = new List<ProductDto>
@@ -70,7 +70,9 @@ namespace Visma.Bootcamp.eShop.Controllers
                         Price = 49.99M
                     }
                 }
-            });
+            };
+
+            return Ok(basketDto);
         }
 
         [HttpPut("{basket_id}")]
@@ -90,7 +92,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             return BadRequest("Not implemented");
         }
 
-        [HttpDelete("basket_id/items/{item_id}")]
+        [HttpDelete("{basket_id}/items/{item_id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(BadRequestError))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(NotFoundError))]

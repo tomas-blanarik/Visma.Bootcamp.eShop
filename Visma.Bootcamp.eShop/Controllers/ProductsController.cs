@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
+using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models.Errors;
 
 namespace Visma.Bootcamp.eShop.Controllers
@@ -22,15 +23,19 @@ namespace Visma.Bootcamp.eShop.Controllers
             description: "Create product in the database and associate it with catalog",
             OperationId = "CreateProduct",
             Tags = new[] { "Product API" })]
-        public async Task<IActionResult> GetProductAsync(CancellationToken ct)
+        public async Task<IActionResult> GetProductAsync(
+            [Required, FromRoute(Name = "product_id")] Guid? productId,
+            CancellationToken ct)
         {
-            return Ok(new ProductDto
+            var productDto = new ProductDto
             {
                 ProductId = Guid.NewGuid(),
                 Name = "product #1",
                 Description = "product description #2",
                 Price = 123.99M
-            });
+            };
+
+            return Ok(productDto);
         }
 
         [HttpPut("{product_id}")]
@@ -44,6 +49,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             Tags = new[] { "Product Management" })]
         public async Task<IActionResult> UpdateProductAsync(
             [Required, FromRoute(Name = "product_id")] Guid? productId,
+            [Bind, FromBody] ProductModel model,
             CancellationToken ct)
         {
             return BadRequest("Not implemented");
@@ -57,7 +63,9 @@ namespace Visma.Bootcamp.eShop.Controllers
             description: "Delete product from the database",
             OperationId = "DeleteProduct",
             Tags = new[] { "Product Management" })]
-        public async Task<IActionResult> DeleteProductAsync(CancellationToken ct)
+        public async Task<IActionResult> DeleteProductAsync(
+            [Required, FromRoute(Name = "product_id")] Guid? productId,
+            CancellationToken ct)
         {
             return BadRequest("Not implemented");
         }

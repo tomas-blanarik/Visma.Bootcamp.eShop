@@ -26,7 +26,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             Tags = new[] { "Catalog API" })]
         public async Task<IActionResult> GetCatalogsAsync(CancellationToken ct)
         {
-            return Ok(new List<CatalogDto>
+            var list = new List<CatalogDto>
             {
                 new CatalogDto
                 {
@@ -104,7 +104,9 @@ namespace Visma.Bootcamp.eShop.Controllers
                         },
                     }
                 }
-            });
+            };
+
+            return Ok(list);
         }
 
         [HttpGet("{catalog_id}/products")]
