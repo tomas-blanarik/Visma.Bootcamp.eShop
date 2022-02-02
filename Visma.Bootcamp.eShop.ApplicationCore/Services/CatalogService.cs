@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using AutoMapper;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -12,15 +13,19 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Services
     public class CatalogService : ICatalogService
     {
         private readonly IMemoryCache _cache;
+        private readonly IMapper _mapper;
 
-        public CatalogService(IMemoryCache cache)
+        public CatalogService(IMemoryCache cache, IMapper mapper)
         {
             _cache = cache;
+            _mapper = mapper;
         }
 
         public Task<CatalogDto> CreateAsync(CatalogModel model, CancellationToken ct = default)
         {
-            throw new NotImplementedException("Not implemented");
+            CatalogDto catalog = _mapper.Map<CatalogDto>(model);
+            catalog.PublicId = Guid.NewGuid();
+            _cache.Set(catalog.PublicId, catalog, TimeSpan.FromHours(24));
         }
 
         public Task DeleteAsync(Guid catalogId, CancellationToken ct = default)
