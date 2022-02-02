@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
 using Visma.Bootcamp.eShop.Controllers;
 using Xunit;
 

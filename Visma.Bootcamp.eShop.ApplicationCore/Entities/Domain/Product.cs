@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Visma.Bootcamp.eShop.ApplicationCore.Entities.Domain
 {
     // db entity
-    internal class Product
+    internal class Product : IDomain
     {
         [Key]
         internal int Id { get; set; }

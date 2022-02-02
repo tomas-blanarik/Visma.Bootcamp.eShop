@@ -9,6 +9,7 @@ using Serilog.Core;
 using Serilog.Events;
 using Serilog.Exceptions;
 using Visma.Bootcamp.eShop.ApplicationCore.Database;
+using Visma.Bootcamp.eShop.ApplicationCore.Infrastructure;
 using Visma.Bootcamp.eShop.ApplicationCore.Profiles;
 using Visma.Bootcamp.eShop.ApplicationCore.Services;
 using Visma.Bootcamp.eShop.ApplicationCore.Services.Interfaces;
@@ -26,6 +27,7 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.DependencyInjection
             AddDatabase(services, configuration);
             //AddLogging(services, environment);
             AddServices(services);
+            AddCache(services);
 
             return services;
         }
@@ -66,6 +68,12 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.DependencyInjection
         private static void AddAutoMapper(IServiceCollection services)
         {
             services.AddAutoMapper(typeof(AutoMapperProfile));
+        }
+
+        private static void AddCache(IServiceCollection services)
+        {
+            services.AddMemoryCache();
+            services.AddSingleton<CacheManager>();
         }
         #endregion
     }

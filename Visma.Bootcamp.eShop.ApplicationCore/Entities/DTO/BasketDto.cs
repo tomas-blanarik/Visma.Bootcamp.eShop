@@ -3,9 +3,10 @@ using System.Collections.Generic;
 
 namespace Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO
 {
-    public class BasketDto
+    public class BasketDto : ICacheableDto
     {
-        public Guid? BasketId { get; set; }
+        public Guid BasketId { get; set; }
         public IList<ProductDto> Items { get; set; }
+        public Guid Id => BasketId;
     }
 }
