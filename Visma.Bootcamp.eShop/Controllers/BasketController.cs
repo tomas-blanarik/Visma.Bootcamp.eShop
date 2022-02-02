@@ -38,10 +38,11 @@ namespace Visma.Bootcamp.eShop.Controllers
             [Bind, FromBody] BasketItemModel model,
             CancellationToken ct)
         {
+            BasketDto basketDto = await _basketService.AddItemAsync(basketId.Value, model, ct);
             return CreatedAtAction(
                 GetBasketRouteName,
                 new { basket_id = basketId },
-                await _basketService.AddItemAsync(basketId.Value, model, ct));
+                basketDto);
         }
 
         [HttpGet("{basket_id}", Name = GetBasketRouteName)]
@@ -55,7 +56,8 @@ namespace Visma.Bootcamp.eShop.Controllers
             [Required, FromRoute(Name = "basket_id")] Guid? basketId,
             CancellationToken ct)
         {
-            return Ok(await _basketService.GetAsync(basketId.Value, ct));
+            BasketDto basketDto = await _basketService.GetAsync(basketId.Value, ct);
+            return Ok(basketDto);
         }
 
         [HttpPut("{basket_id}")]

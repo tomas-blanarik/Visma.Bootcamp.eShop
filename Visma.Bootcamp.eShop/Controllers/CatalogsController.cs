@@ -36,7 +36,8 @@ namespace Visma.Bootcamp.eShop.Controllers
             Tags = new[] { "Catalog API" })]
         public async Task<IActionResult> GetCatalogsAsync(CancellationToken ct)
         {
-            return Ok(await _catalogService.GetAllAsync(ct));
+            List<CatalogDto> listOfCatalogs = await _catalogService.GetAllAsync(ct);
+            return Ok(listOfCatalogs);
         }
 
         [HttpGet("{catalog_id}/products", Name = GetCatalogRouteName)]
@@ -51,7 +52,8 @@ namespace Visma.Bootcamp.eShop.Controllers
             [Required, FromRoute(Name = "catalog_id")] Guid? catalogId,
             CancellationToken ct)
         {
-            return Ok(_catalogService.GetAsync(catalogId.Value, ct));
+            CatalogDto catalogDto = await _catalogService.GetAsync(catalogId.Value, ct);
+            return Ok(catalogDto);
         }
 
         [HttpPost]
@@ -66,7 +68,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             [FromBody, Bind] CatalogModel model,
             CancellationToken ct)
         {
-            var catalogDto = await _catalogService.CreateAsync(model, ct);
+            CatalogDto catalogDto = await _catalogService.CreateAsync(model, ct);
             return CreatedAtAction(
                 GetCatalogRouteName,
                 new { catalog_id = catalogDto.PublicId },
@@ -87,7 +89,8 @@ namespace Visma.Bootcamp.eShop.Controllers
             [FromBody, Bind] CatalogModel model,
             CancellationToken ct)
         {
-            return Ok(await _catalogService.UpdateAsync(catalogId.Value, model, ct));
+            CatalogDto catalogDto = await _catalogService.UpdateAsync(catalogId.Value, model, ct);
+            return Ok(catalogDto);
         }
 
         [HttpDelete("{catalog_id}")]
@@ -120,7 +123,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             [FromServices] IProductService productService,
             CancellationToken ct)
         {
-            var productDto = await productService.CreateAsync(catalogId.Value, model, ct);
+            ProductDto productDto = await productService.CreateAsync(catalogId.Value, model, ct);
             return CreatedAtAction(
                 ProductsController.GetProductRouteName,
                 new { product_id = productDto.PublicId },

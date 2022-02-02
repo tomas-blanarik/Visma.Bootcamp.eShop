@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Caching.Memory;
+using NSubstitute;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
@@ -9,16 +11,17 @@ namespace Visma.Bootcamp.eShop.Tests.Services
 {
     public class BasketServiceTests
     {
-
+        private IMemoryCache subMemoryCache;
 
         public BasketServiceTests()
         {
-
+            this.subMemoryCache = Substitute.For<IMemoryCache>();
         }
 
         private BasketService CreateService()
         {
-            return new BasketService();
+            return new BasketService(
+                this.subMemoryCache);
         }
 
         [Fact]

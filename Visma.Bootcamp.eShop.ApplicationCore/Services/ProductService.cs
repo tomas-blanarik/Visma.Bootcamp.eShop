@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Caching.Memory;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
@@ -9,6 +10,13 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Services
 {
     public class ProductService : IProductService
     {
+        private readonly IMemoryCache _cache;
+
+        public ProductService(IMemoryCache cache)
+        {
+            _cache = cache;
+        }
+
         public Task<ProductDto> CreateAsync(Guid catalogId, ProductModel model, CancellationToken ct = default)
         {
             throw new NotImplementedException("Not implemented");

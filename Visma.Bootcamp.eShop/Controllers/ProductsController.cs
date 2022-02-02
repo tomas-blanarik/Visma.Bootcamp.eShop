@@ -37,7 +37,8 @@ namespace Visma.Bootcamp.eShop.Controllers
             [Required, FromRoute(Name = "product_id")] Guid? productId,
             CancellationToken ct)
         {
-            return Ok(await _productService.GetAsync(productId.Value, ct));
+            ProductDto productDto = await _productService.GetAsync(productId.Value, ct);
+            return Ok(productDto);
         }
 
         [HttpPut("{product_id}")]
@@ -54,7 +55,8 @@ namespace Visma.Bootcamp.eShop.Controllers
             [Bind, FromBody] ProductModel model,
             CancellationToken ct)
         {
-            return Ok(await _productService.UpdateAsync(productId.Value, model, ct));
+            ProductDto productDto = await _productService.UpdateAsync(productId.Value, model, ct);
+            return Ok(productDto);
         }
 
         [HttpDelete("{product_id}")]

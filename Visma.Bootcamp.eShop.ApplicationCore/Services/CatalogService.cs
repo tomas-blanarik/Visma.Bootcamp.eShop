@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Caching.Memory;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +11,13 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Services
 {
     public class CatalogService : ICatalogService
     {
+        private readonly IMemoryCache _cache;
+
+        public CatalogService(IMemoryCache cache)
+        {
+            _cache = cache;
+        }
+
         public Task<CatalogDto> CreateAsync(CatalogModel model, CancellationToken ct = default)
         {
             throw new NotImplementedException("Not implemented");
