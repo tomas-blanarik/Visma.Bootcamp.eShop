@@ -25,6 +25,8 @@ namespace Visma.Bootcamp.eShop.Controllers
             _service = service;
         }
 
+        public const string GetCatalogRouteName = "getcatalog";
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<CatalogDto>))]
         [SwaggerOperation(
@@ -37,7 +39,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             return Ok(_service.Get());
         }
 
-        [HttpGet("{catalog_id}/products")]
+        [HttpGet("{catalog_id}/products", Name = GetCatalogRouteName)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CatalogDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(NotFoundError))]
         [SwaggerOperation(
@@ -49,7 +51,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             [Required, FromRoute(Name = "catalog_id")] Guid? catalogId,
             CancellationToken ct)
         {
-            return BadRequest("Not implemented");
+            return Ok(_service.Get(catalogId.Value));
         }
 
         [HttpPost]
@@ -64,7 +66,11 @@ namespace Visma.Bootcamp.eShop.Controllers
             [FromBody, Bind] CatalogModel model,
             CancellationToken ct)
         {
-            return BadRequest("Not implemented");
+            var catalogDto = _service.Create(model);
+            return CreatedAtAction(
+                GetCatalogRouteName,
+                new { catalog_id = catalogDto.Id },
+                catalogDto);
         }
 
         [HttpPut("{catalog_id}")]
@@ -81,7 +87,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             [FromBody, Bind] CatalogModel model,
             CancellationToken ct)
         {
-            return BadRequest("Not implemented");
+            return Ok(_service.Update(catalogId.Value, model));
         }
 
         [HttpDelete("{catalog_id}")]
@@ -96,7 +102,8 @@ namespace Visma.Bootcamp.eShop.Controllers
             [Required, FromRoute(Name = "catalog_id")] Guid? catalogId,
             CancellationToken ct)
         {
-            return BadRequest("Not implemented");
+            _service.Delete(catalogId.Value);
+            return NoContent();
         }
 
         [HttpPost("{catalog_id}/products")]
