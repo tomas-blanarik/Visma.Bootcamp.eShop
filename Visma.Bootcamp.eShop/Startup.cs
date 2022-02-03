@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System;
 using Visma.Bootcamp.eShop.ApplicationCore.DependencyInjection;
+using Visma.Bootcamp.eShop.ApplicationCore.Infrastructure;
 
 namespace Visma.Bootcamp.eShop
 {
@@ -73,7 +74,7 @@ namespace Visma.Bootcamp.eShop
             app.UseAuthorization();
 
             // custom middlewares here
-
+            app.UseMiddleware<ErrorHandlingMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {

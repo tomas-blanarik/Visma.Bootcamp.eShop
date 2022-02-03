@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models.Errors;
-using Visma.Bootcamp.eShop.ApplicationCore.Exceptions;
-using Visma.Bootcamp.eShop.ApplicationCore.Infrastructure;
 using Visma.Bootcamp.eShop.ApplicationCore.Services.Interfaces;
 
 namespace Visma.Bootcamp.eShop.Controllers
@@ -19,17 +17,11 @@ namespace Visma.Bootcamp.eShop.Controllers
     [Route("api/[controller]")]
     public class BasketController : ControllerBase
     {
-        private readonly CacheManager _cache;
         private readonly IBasketService _service;
 
         public BasketController(IBasketService service)
         {
             _service = service;
-        }
-
-        public BasketController(CacheManager cache)
-        {
-            _cache = cache;
         }
 
         public const string GetBasketRouteName = "getbasket";
@@ -46,22 +38,11 @@ namespace Visma.Bootcamp.eShop.Controllers
             [Bind, FromBody] BasketItemModel model,
             CancellationToken ct)
         {
-            try
-            {
-                var basket = _service.AddItem(basketId.Value, model);
-                return CreatedAtAction(
-                    GetBasketRouteName,
-                    new { basket_id = basket.Id },
-                    basket);
-            }
-            catch (BadRequestException e)
-            {
-                return BadRequest(e.Message);
-            }
-            catch (UnprocessableEntityException e)
-            {
-                return UnprocessableEntity(e.Message);
-            }
+            var basket = _service.AddItem(basketId.Value, model);
+            return CreatedAtAction(
+                GetBasketRouteName,
+                new { basket_id = basket.Id },
+                basket);
         }
 
         [HttpGet("{basket_id}", Name = GetBasketRouteName)]
@@ -94,19 +75,8 @@ namespace Visma.Bootcamp.eShop.Controllers
             [FromBody, Bind] BasketModel model,
             CancellationToken ct)
         {
-            try
-            {
-                _service.Update(basketId.Value, model);
-                return NoContent();
-            }
-            catch (BadRequestException e)
-            {
-                return BadRequest(e.Message);
-            }
-            catch (NotFoundException e)
-            {
-                return NotFound(e.Message);
-            }
+            _service.Update(basketId.Value, model);
+            return NoContent();
         }
 
         [HttpDelete("{basket_id}/items/{item_id}")]
@@ -123,15 +93,8 @@ namespace Visma.Bootcamp.eShop.Controllers
             [Required, FromRoute(Name = "item_id")] Guid? itemId,
             CancellationToken ct)
         {
-            try
-            {
-                _service.DeleteItem(basketId.Value, itemId.Value);
-                return NoContent();
-            }
-            catch (NotFoundException e)
-            {
-                return NotFound(e.Message);
-            }
+            _service.DeleteItem(basketId.Value, itemId.Value);
+            return NoContent();
         }
     }
 }
