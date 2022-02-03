@@ -62,6 +62,18 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Infrastructure
             return items.SingleOrDefault(x => x.Id == itemId);
         }
 
+        public void Remove<T>(Guid itemId) where T : ICacheableDto
+        {
+            string category = GetCategoryOrThrow(typeof(T));
+            List<T> cachedItems = Get<T>(); // get all items for given category
+            var item = cachedItems.SingleOrDefault(x => x.Id == itemId);
+            if (item != null)
+            {
+                cachedItems.Remove(item);
+                _cache.Set(category, cachedItems, TimeSpan.FromHours(24));
+            }
+        }
+
         private string GetCategoryOrThrow(Type itemType)
         {
             return !_domainTypes.ContainsKey(itemType)

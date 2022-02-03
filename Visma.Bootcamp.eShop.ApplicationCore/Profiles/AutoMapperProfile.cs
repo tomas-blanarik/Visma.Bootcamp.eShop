@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Domain;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
+using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
 
 namespace Visma.Bootcamp.eShop.ApplicationCore.Profiles
 {
@@ -16,6 +17,8 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Profiles
             CreateMap<Order, OrderDto>();
             CreateMap<Product, ProductDto>()
                 .ForMember(dest => dest.ProductId, src => src.MapFrom(x => x.ProductId.Value));
+
+            CreateMap<CatalogModel, CatalogDto>();
         }
     }
 }

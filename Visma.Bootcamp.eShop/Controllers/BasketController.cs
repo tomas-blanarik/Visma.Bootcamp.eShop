@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
@@ -77,8 +76,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             CancellationToken ct)
         {
             // ed7365c1-b7b2-4751-a079-71cbd08d2b8d
-            var (_, basket) = GetBasket(basketId.Value, true);
-            return Ok(basket);
+            return Ok(_service.Get(basketId.Value));
         }
 
         [HttpPut("{basket_id}")]
@@ -96,39 +94,19 @@ namespace Visma.Bootcamp.eShop.Controllers
             [FromBody, Bind] BasketModel model,
             CancellationToken ct)
         {
-            // 1. ak basket neexistuje co s tym?
-            // 2. preforeachujem itemy a zistim
-            // - ci item existuje?
-            //   - ak ano updatnem quantity
-            //   - ak nie, co potom?
-            // 3. ulozim kosik
-
-            // check if item quantities are within range
-            if (model.Items.Any(x => x.Quantity <= 0 || x.Quantity > 20))
+            try
             {
-                return BadRequest("Quantity must be a number between 1 and 20");
+                _service.Update(basketId.Value, model);
+                return NoContent();
             }
-
-            // get basket and check if it exists
-            var (basketExists, basket) = GetBasket(basketId.Value);
-            if (!basketExists)
+            catch (BadRequestException e)
             {
-                return NotFound($"Basket with ID: {basketId} not found");
+                return BadRequest(e.Message);
             }
-
-            foreach (BasketItemModel item in model.Items)
+            catch (NotFoundException e)
             {
-                var basketItem = basket.Items
-                    .SingleOrDefault(x => x.Product.Id == item.ProductId);
-                if (basketItem == null)
-                {
-                    return NotFound($"Product with ID: {item.ProductId} not found in the basket");
-                }
-
-                basketItem.Quantity = item.Quantity;
+                return NotFound(e.Message);
             }
-
-            return NoContent();
         }
 
         [HttpDelete("{basket_id}/items/{item_id}")]
@@ -145,46 +123,15 @@ namespace Visma.Bootcamp.eShop.Controllers
             [Required, FromRoute(Name = "item_id")] Guid? itemId,
             CancellationToken ct)
         {
-            // co ak basket neexistuje
-            // - hodim not found
-            // ak item existuje
-            // - zmazem ho
-            // ak neexsituje 
-            // - hodim not found
-            // ak vsetko prebehlo OK, ulozim spat do cache
-
-            var (basketExists, basket) = GetBasket(basketId.Value);
-            if (!basketExists)
+            try
             {
-                return NotFound($"Basket with ID: {basketId} not found");
+                _service.DeleteItem(basketId.Value, itemId.Value);
+                return NoContent();
             }
-
-            var basketItem = basket.Items
-                .SingleOrDefault(x => x.Product.Id == itemId);
-            if (basketItem == null)
+            catch (NotFoundException e)
             {
-                return NotFound($"Product with ID: {itemId} is not present in the basket");
+                return NotFound(e.Message);
             }
-
-            basket.Items.Remove(basketItem);
-            _cache.Set(basket);
-            return NoContent();
-        }
-
-        private (bool, BasketDto) GetBasket(Guid basketId, bool createBasket = false)
-        {
-            BasketDto basket = _cache.Get<BasketDto>(basketId);
-            if (basket == null)
-            {
-                if (!createBasket) return (false, null);
-                else
-                {
-                    basket = new BasketDto { BasketId = basketId };
-                    _cache.Set(basket);
-                }
-            }
-
-            return (true, basket);
         }
     }
 }

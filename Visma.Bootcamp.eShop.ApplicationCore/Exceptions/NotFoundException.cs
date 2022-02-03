@@ -2,9 +2,9 @@
 
 namespace Visma.Bootcamp.eShop.ApplicationCore.Exceptions
 {
-    public class UnprocessableEntityException : Exception
+    public class NotFoundException : Exception
     {
-        public UnprocessableEntityException(string message)
+        public NotFoundException(string message)
             : base(message)
         { }
     }

@@ -38,11 +38,7 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Services
                 //return BadRequest("Quantity must be a number between 0 and 20");
             }
 
-            var basket = _cache.Get<BasketDto>(basketId);
-            if (basket == null)
-            {
-                basket = new BasketDto { BasketId = basketId };
-            }
+            var (_, basket) = GetBasket(basketId, true);
 
             var basketItem = basket.Items
                 .SingleOrDefault(x => x.Product.Id == model.ProductId);
@@ -52,7 +48,6 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Services
                 if (basketItem.Quantity > maxItems)
                 {
                     throw new UnprocessableEntityException("You can order maximum of 20 items");
-                    //return UnprocessableEntity("You can order maximum of 20 items");
                 }
             }
             else
@@ -75,17 +70,86 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Services
 
         public void DeleteItem(Guid basketId, Guid itemId)
         {
-            throw new NotImplementedException();
+            // co ak basket neexistuje
+            // - hodim not found
+            // ak item existuje
+            // - zmazem ho
+            // ak neexsituje 
+            // - hodim not found
+            // ak vsetko prebehlo OK, ulozim spat do cache
+
+            var (basketExists, basket) = GetBasket(basketId);
+            if (!basketExists)
+            {
+                throw new NotFoundException($"Basket with ID: {basketId} not found");
+            }
+
+            var basketItem = basket.Items
+                .SingleOrDefault(x => x.Product.Id == itemId);
+            if (basketItem == null)
+            {
+                throw new NotFoundException($"Product with ID: {itemId} is not present in the basket");
+            }
+
+            basket.Items.Remove(basketItem);
+            _cache.Set(basket);
         }
 
         public BasketDto Get(Guid basketId)
         {
-            throw new NotImplementedException();
+            var (_, basket) = GetBasket(basketId, true);
+            return basket;
         }
 
         public void Update(Guid basketId, BasketModel model)
         {
-            throw new NotImplementedException();
+            // 1. ak basket neexistuje co s tym?
+            // 2. preforeachujem itemy a zistim
+            // - ci item existuje?
+            //   - ak ano updatnem quantity
+            //   - ak nie, co potom?
+            // 3. ulozim kosik
+
+            // check if item quantities are within range
+            if (model.Items.Any(x => x.Quantity <= 0 || x.Quantity > 20))
+            {
+                throw new BadRequestException("Quantity must be a number between 1 and 20");
+            }
+
+            // get basket and check if it exists
+            var (basketExists, basket) = GetBasket(basketId);
+            if (!basketExists)
+            {
+                throw new NotFoundException($"Basket with ID: {basketId} not found");
+            }
+
+            foreach (BasketItemModel item in model.Items)
+            {
+                var basketItem = basket.Items
+                    .SingleOrDefault(x => x.Product.Id == item.ProductId);
+                if (basketItem == null)
+                {
+                    throw new NotFoundException($"Product with ID: {item.ProductId} not found in the basket");
+                }
+
+                basketItem.Quantity = item.Quantity;
+            }
+        }
+
+        private (bool, BasketDto) GetBasket(Guid basketId, bool createBasket = false)
+        {
+            BasketDto basket = _cache.Get<BasketDto>(basketId);
+            if (basket == null)
+            {
+                if (!createBasket) return (false, null);
+                else
+                {
+                    basket = new BasketDto { BasketId = basketId };
+                    _cache.Set(basket);
+                }
+            }
+
+            return (true, basket);
         }
     }
 }
