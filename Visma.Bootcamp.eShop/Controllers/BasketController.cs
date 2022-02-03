@@ -2,13 +2,16 @@
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models.Errors;
+using Visma.Bootcamp.eShop.ApplicationCore.Exceptions;
+using Visma.Bootcamp.eShop.ApplicationCore.Infrastructure;
+using Visma.Bootcamp.eShop.ApplicationCore.Services.Interfaces;
 
 namespace Visma.Bootcamp.eShop.Controllers
 {
@@ -17,6 +20,21 @@ namespace Visma.Bootcamp.eShop.Controllers
     [Route("api/[controller]")]
     public class BasketController : ControllerBase
     {
+        private readonly CacheManager _cache;
+        private readonly IBasketService _service;
+
+        public BasketController(IBasketService service)
+        {
+            _service = service;
+        }
+
+        public BasketController(CacheManager cache)
+        {
+            _cache = cache;
+        }
+
+        public const string GetBasketRouteName = "getbasket";
+
         [HttpPost("{basket_id}/items")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(BasketDto))]
         [SwaggerOperation(
@@ -29,10 +47,25 @@ namespace Visma.Bootcamp.eShop.Controllers
             [Bind, FromBody] BasketItemModel model,
             CancellationToken ct)
         {
-            return BadRequest("Not implemented");
+            try
+            {
+                var basket = _service.AddItem(basketId.Value, model);
+                return CreatedAtAction(
+                    GetBasketRouteName,
+                    new { basket_id = basket.Id },
+                    basket);
+            }
+            catch (BadRequestException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (UnprocessableEntityException e)
+            {
+                return UnprocessableEntity(e.Message);
+            }
         }
 
-        [HttpGet("{basket_id}")]
+        [HttpGet("{basket_id}", Name = GetBasketRouteName)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BasketDto))]
         [SwaggerOperation(
             summary: "Retrieve basket",
@@ -43,41 +76,15 @@ namespace Visma.Bootcamp.eShop.Controllers
             [Required, FromRoute(Name = "basket_id")] Guid? basketId,
             CancellationToken ct)
         {
-            var basketDto = new BasketDto
-            {
-                BasketId = Guid.NewGuid(),
-                Items = new List<ProductDto>
-                {
-                    new ProductDto
-                    {
-                        ProductId = Guid.NewGuid(),
-                        Name = "test product #1",
-                        Description = "test decription #1",
-                        Price = 128.34M
-                    },
-                    new ProductDto
-                    {
-                        ProductId = Guid.NewGuid(),
-                        Name = "test product #2",
-                        Description = "test description #2",
-                        Price = 25.99M
-                    },
-                    new ProductDto
-                    {
-                        ProductId = Guid.NewGuid(),
-                        Name = "test product #3",
-                        Description = "test description #3",
-                        Price = 49.99M
-                    }
-                }
-            };
-
-            return Ok(basketDto);
+            // ed7365c1-b7b2-4751-a079-71cbd08d2b8d
+            var (_, basket) = GetBasket(basketId.Value, true);
+            return Ok(basket);
         }
 
         [HttpPut("{basket_id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(BadRequestError))]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity, Type = typeof(UnprocessableEntityError))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(NotFoundError))]
         [SwaggerOperation(
             summary: "Update basket",
@@ -89,7 +96,39 @@ namespace Visma.Bootcamp.eShop.Controllers
             [FromBody, Bind] BasketModel model,
             CancellationToken ct)
         {
-            return BadRequest("Not implemented");
+            // 1. ak basket neexistuje co s tym?
+            // 2. preforeachujem itemy a zistim
+            // - ci item existuje?
+            //   - ak ano updatnem quantity
+            //   - ak nie, co potom?
+            // 3. ulozim kosik
+
+            // check if item quantities are within range
+            if (model.Items.Any(x => x.Quantity <= 0 || x.Quantity > 20))
+            {
+                return BadRequest("Quantity must be a number between 1 and 20");
+            }
+
+            // get basket and check if it exists
+            var (basketExists, basket) = GetBasket(basketId.Value);
+            if (!basketExists)
+            {
+                return NotFound($"Basket with ID: {basketId} not found");
+            }
+
+            foreach (BasketItemModel item in model.Items)
+            {
+                var basketItem = basket.Items
+                    .SingleOrDefault(x => x.Product.Id == item.ProductId);
+                if (basketItem == null)
+                {
+                    return NotFound($"Product with ID: {item.ProductId} not found in the basket");
+                }
+
+                basketItem.Quantity = item.Quantity;
+            }
+
+            return NoContent();
         }
 
         [HttpDelete("{basket_id}/items/{item_id}")]
@@ -106,7 +145,46 @@ namespace Visma.Bootcamp.eShop.Controllers
             [Required, FromRoute(Name = "item_id")] Guid? itemId,
             CancellationToken ct)
         {
-            return BadRequest("Not implemented");
+            // co ak basket neexistuje
+            // - hodim not found
+            // ak item existuje
+            // - zmazem ho
+            // ak neexsituje 
+            // - hodim not found
+            // ak vsetko prebehlo OK, ulozim spat do cache
+
+            var (basketExists, basket) = GetBasket(basketId.Value);
+            if (!basketExists)
+            {
+                return NotFound($"Basket with ID: {basketId} not found");
+            }
+
+            var basketItem = basket.Items
+                .SingleOrDefault(x => x.Product.Id == itemId);
+            if (basketItem == null)
+            {
+                return NotFound($"Product with ID: {itemId} is not present in the basket");
+            }
+
+            basket.Items.Remove(basketItem);
+            _cache.Set(basket);
+            return NoContent();
+        }
+
+        private (bool, BasketDto) GetBasket(Guid basketId, bool createBasket = false)
+        {
+            BasketDto basket = _cache.Get<BasketDto>(basketId);
+            if (basket == null)
+            {
+                if (!createBasket) return (false, null);
+                else
+                {
+                    basket = new BasketDto { BasketId = basketId };
+                    _cache.Set(basket);
+                }
+            }
+
+            return (true, basket);
         }
     }
 }

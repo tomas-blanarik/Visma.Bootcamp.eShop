@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +29,12 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Infrastructure
             string category = GetCategoryOrThrow(typeof(T));
             if (_cache.TryGetValue(category, out List<T> cachedItems))
             {
+                var chachedItem = cachedItems.SingleOrDefault(x => x.Id == item.Id);
+                if (cachedItems != null)
+                {
+                    cachedItems.Remove(chachedItem);
+                }
+
                 cachedItems.Add(item);
             }
             else

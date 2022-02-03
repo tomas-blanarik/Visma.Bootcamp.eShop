@@ -8,7 +8,7 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Entities.Models
         [Required]
         public Guid? ProductId { get; set; }
 
-        [Required, Range(1, 20)]
+        [Required]
         public int Quantity { get; set; }
     }
 }
