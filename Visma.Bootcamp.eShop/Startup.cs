@@ -72,6 +72,9 @@ namespace Visma.Bootcamp.eShop
 
             app.UseAuthorization();
 
+            // use custom middlewares here
+            app.UseErrorHandlingMiddleware();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

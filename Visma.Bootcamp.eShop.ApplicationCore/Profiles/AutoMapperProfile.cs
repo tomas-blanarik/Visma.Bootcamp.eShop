@@ -20,7 +20,7 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Profiles
             CreateMap<ProductModel, ProductDto>();
             CreateMap<BasketModel, BasketDto>();
             CreateMap<BasketItemModel, BasketItemDto>()
-                .ForMember(dest => dest.Product, src => src.MapFrom(x => new ProductDto { PublicId = x.ProductId }));
+                .ForMember(dest => dest.Product, src => src.MapFrom(x => new ProductDto { PublicId = x.ProductId.Value }));
         }
     }
 }

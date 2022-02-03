@@ -2,8 +2,8 @@
 
 namespace Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO
 {
-    public class OrderDto : ICacheableDto
+    public interface ICacheableDto
     {
-        public Guid Id => Guid.NewGuid();
+        Guid Id { get; }
     }
 }

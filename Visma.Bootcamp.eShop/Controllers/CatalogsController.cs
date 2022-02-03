@@ -71,7 +71,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             CatalogDto catalogDto = await _catalogService.CreateAsync(model, ct);
             return CreatedAtAction(
                 GetCatalogRouteName,
-                new { catalog_id = catalogDto.PublicId },
+                new { catalog_id = catalogDto.Id },
                 catalogDto);
         }
 
