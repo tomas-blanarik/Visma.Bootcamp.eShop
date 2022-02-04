@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
 
 namespace Visma.Bootcamp.eShop.ApplicationCore.Entities.Domain
 {
@@ -25,5 +26,16 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Entities.Domain
         [Required]
         public int CatalogId { get; set; }
         public virtual Catalog Catalog { get; set; }
+
+        public ProductDto ToDto()
+        {
+            return new ProductDto
+            {
+                PublicId = PublicId.Value,
+                Name = Name,
+                Description = Description,
+                Price = Price
+            };
+        }
     }
 }

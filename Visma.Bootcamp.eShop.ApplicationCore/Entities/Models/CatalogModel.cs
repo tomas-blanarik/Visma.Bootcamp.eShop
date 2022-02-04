@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Visma.Bootcamp.eShop.ApplicationCore.Entities.Domain;
 
 namespace Visma.Bootcamp.eShop.ApplicationCore.Entities.Models
 {
@@ -9,5 +10,14 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Entities.Models
 
         [StringLength(200)]
         public string Description { get; set; }
+
+        public Catalog ToDomain()
+        {
+            return new Catalog
+            {
+                Name = Name,
+                Description = Description
+            };
+        }
     }
 }

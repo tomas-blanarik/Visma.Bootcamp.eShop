@@ -1,41 +1,51 @@
-﻿using AutoMapper;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Visma.Bootcamp.eShop.ApplicationCore.Database;
+using Visma.Bootcamp.eShop.ApplicationCore.Entities.Domain;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
 using Visma.Bootcamp.eShop.ApplicationCore.Exceptions;
-using Visma.Bootcamp.eShop.ApplicationCore.Infrastructure;
 using Visma.Bootcamp.eShop.ApplicationCore.Services.Interfaces;
 
 namespace Visma.Bootcamp.eShop.ApplicationCore.Services
 {
     public class CatalogService : ICatalogService
     {
-        private readonly CacheManager _cache;
-        private readonly IMapper _mapper;
+        private readonly ApplicationContext _context;
 
-        public CatalogService(CacheManager cache, IMapper mapper)
+        public CatalogService(ApplicationContext context)
         {
-            _cache = cache;
-            _mapper = mapper;
+            _context = context;
         }
 
         public async Task<CatalogDto> CreateAsync(
             CatalogModel model,
             CancellationToken ct = default)
         {
-            var catalogs = _cache.Get<CatalogDto>();
-            if (catalogs.Any(x => x.Name == model.Name))
+            Catalog duplicate = await _context.Catalogs
+                .AsNoTracking()
+                .SingleOrDefaultAsync(x => x.Name == model.Name, ct);
+
+            // checking for duplicate
+            if (duplicate != null)
             {
                 throw new ConflictException($"Catalog with name {model.Name} already exists");
             }
 
-            var catalogDto = _mapper.Map<CatalogDto>(model);
-            catalogDto.PublicId = Guid.NewGuid();
-            _cache.Set(catalogDto);
+            // convert CatalogModel to Catalog
+            Catalog catalog = model.ToDomain();
+            catalog.PublicId = Guid.NewGuid();
+
+            // save to the database
+            await _context.AddAsync(catalog, ct);
+            await _context.SaveChangesAsync(ct);
+
+            // last step
+            var catalogDto = catalog.ToDto();
             return catalogDto;
         }
 
@@ -43,31 +53,41 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Services
             Guid catalogId,
             CancellationToken ct = default)
         {
-            var catalog = _cache.Get<CatalogDto>(catalogId);
+            var catalog = await _context.Catalogs
+                .SingleOrDefaultAsync(x => x.PublicId == catalogId, ct);
             if (catalog == null)
             {
                 throw new NotFoundException($"Catalog with ID: {catalogId} doesn't exist");
             }
 
-            _cache.Remove<CatalogDto>(catalogId);
+            _context.Catalogs.Remove(catalog);
+            await _context.SaveChangesAsync(ct);
         }
 
         public async Task<List<CatalogDto>> GetAllAsync(CancellationToken ct = default)
         {
-            return _cache.Get<CatalogDto>();
+            var catalogs = await _context.Catalogs
+                .AsNoTracking()
+                .ToListAsync(ct);
+            return catalogs.Select(x => x.ToDto()).ToList();
         }
 
         public async Task<CatalogDto> GetAsync(
             Guid catalogId,
             CancellationToken ct = default)
         {
-            var catalog = _cache.Get<CatalogDto>(catalogId);
+            var catalog = await _context.Catalogs
+                .AsNoTracking()
+                .Include(x => x.Products)
+                .SingleOrDefaultAsync(x => x.PublicId == catalogId, ct);
+
             if (catalog == null)
             {
                 throw new NotFoundException($"Catalog with ID: {catalogId} doesn't exist");
             }
 
-            return catalog;
+            var catalogDto = catalog.ToDto();
+            return catalogDto;
         }
 
         public async Task<CatalogDto> UpdateAsync(
@@ -75,13 +95,13 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Services
             CatalogModel model,
             CancellationToken ct = default)
         {
-            var catalogs = _cache.Get<CatalogDto>();
-            if (catalogs.Any(x => x.Name == model.Name && x.Id != catalogId))
+            if (_context.Catalogs.Any(x => x.Name == model.Name && x.PublicId != catalogId))
             {
                 throw new ConflictException($"Catalog with name {model.Name} already exists");
             }
 
-            var catalog = catalogs.SingleOrDefault(x => x.Id == catalogId);
+            var catalog = await _context.Catalogs
+                .SingleOrDefaultAsync(x => x.PublicId == catalogId, ct);
             if (catalog == null)
             {
                 throw new NotFoundException($"Catalog with ID: {catalogId} doesn't exist");
@@ -89,8 +109,11 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Services
 
             catalog.Name = model.Name;
             catalog.Description = model.Description;
-            _cache.Set(catalog);
-            return catalog;
+
+            _context.Catalogs.Update(catalog);
+            await _context.SaveChangesAsync(ct);
+
+            return catalog.ToDto();
         }
     }
 }

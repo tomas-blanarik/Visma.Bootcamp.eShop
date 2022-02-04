@@ -69,7 +69,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             CancellationToken ct)
         {
             CatalogDto catalogDto = await _catalogService.CreateAsync(model, ct);
-            return CreatedAtAction(
+            return CreatedAtRoute(
                 GetCatalogRouteName,
                 new { catalog_id = catalogDto.Id },
                 catalogDto);
@@ -124,7 +124,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             CancellationToken ct)
         {
             ProductDto productDto = await productService.CreateAsync(catalogId.Value, model, ct);
-            return CreatedAtAction(
+            return CreatedAtRoute(
                 ProductsController.GetProductRouteName,
                 new { product_id = productDto.PublicId },
                 productDto);

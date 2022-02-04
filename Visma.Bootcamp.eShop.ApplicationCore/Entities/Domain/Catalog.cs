@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
 
 namespace Visma.Bootcamp.eShop.ApplicationCore.Entities.Domain
 {
@@ -21,5 +23,16 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Entities.Domain
 
         // one-to-many
         public virtual ICollection<Product> Products { get; set; }
+
+        public CatalogDto ToDto()
+        {
+            return new CatalogDto
+            {
+                Description = Description,
+                Name = Name,
+                PublicId = PublicId.Value,
+                Products = Products?.Select(x => x.ToDto()).ToList()
+            };
+        }
     }
 }

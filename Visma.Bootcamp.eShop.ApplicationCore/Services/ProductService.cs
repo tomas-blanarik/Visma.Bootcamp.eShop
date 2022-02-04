@@ -1,73 +1,97 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Visma.Bootcamp.eShop.ApplicationCore.Database;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
 using Visma.Bootcamp.eShop.ApplicationCore.Exceptions;
-using Visma.Bootcamp.eShop.ApplicationCore.Infrastructure;
 using Visma.Bootcamp.eShop.ApplicationCore.Services.Interfaces;
 
 namespace Visma.Bootcamp.eShop.ApplicationCore.Services
 {
     public class ProductService : IProductService
     {
-        private readonly CacheManager _cache;
+        private ApplicationContext _context;
         private readonly IMapper _mapper;
 
-        public ProductService(CacheManager cache, IMapper mapper)
+        public ProductService(ApplicationContext context, IMapper mapper)
         {
-            _cache = cache;
+            _context = context;
             _mapper = mapper;
         }
 
-        public async Task<ProductDto> CreateAsync(Guid catalogId, ProductModel model, CancellationToken ct = default)
+        public async Task<ProductDto> CreateAsync(
+            Guid catalogId,
+            ProductModel model,
+            CancellationToken ct = default)
         {
-            var products = _cache.Get<ProductDto>();
-            if (products.Any(x => x.Name == model.Name))
+            if (await _context.Products.AnyAsync(x => x.Name == model.Name, ct))
             {
                 throw new ConflictException($"Product with name {model.Name} already exists");
             }
 
-            var product = _mapper.Map<ProductDto>(model);
+            var catalog = await _context.Catalogs
+                .SingleOrDefaultAsync(x => x.PublicId == catalogId, ct);
+
+            if (catalog == null)
+            {
+                throw new NotFoundException($"Catalog doesn't exist");
+            }
+
+            var product = model.ToDomain();
             product.PublicId = Guid.NewGuid();
-            _cache.Set(product);
-            return product;
+            product.CatalogId = catalog.Id;
+
+            await _context.Products.AddAsync(product, ct);
+            await _context.SaveChangesAsync(ct);
+            return product.ToDto();
         }
 
-        public async Task DeleteAsync(Guid productId, CancellationToken ct = default)
+        public async Task DeleteAsync(
+            Guid productId,
+            CancellationToken ct = default)
         {
-            var product = _cache.Get<ProductDto>(productId);
+            var product = await _context.Products
+                .SingleOrDefaultAsync(x => x.PublicId == productId, ct);
             if (product == null)
             {
                 throw new NotFoundException($"Product with ID: {productId} doesn't exist");
             }
 
-            _cache.Remove<ProductDto>(productId);
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync(ct);
         }
 
-        public async Task<ProductDto> GetAsync(Guid productId, CancellationToken ct = default)
+        public async Task<ProductDto> GetAsync(
+            Guid productId,
+            CancellationToken ct = default)
         {
-            var product = _cache.Get<ProductDto>(productId);
+            var product = await _context.Products
+                .AsNoTracking()
+                .SingleOrDefaultAsync(x => x.PublicId == productId, ct);
             if (product == null)
             {
                 throw new NotFoundException($"Product with ID: {productId} doesn't exist");
             }
 
-            return product;
+            return product.ToDto();
         }
 
-        public async Task<ProductDto> UpdateAsync(Guid productId, ProductModel model, CancellationToken ct = default)
+        public async Task<ProductDto> UpdateAsync(
+            Guid productId,
+            ProductModel model,
+            CancellationToken ct = default)
         {
-            var product = _cache.Get<ProductDto>(productId);
+            var product = await _context.Products
+                .SingleOrDefaultAsync(x => x.PublicId == productId, ct);
             if (product == null)
             {
                 throw new NotFoundException($"Product with ID: {productId} doesn't exist");
             }
 
-            var products = _cache.Get<ProductDto>();
-            if (products.Any(x => x.Name == model.Name && x.Id != productId))
+            if (await _context.Products.AnyAsync(x => x.Name == model.Name && x.PublicId != productId, ct))
             {
                 throw new ConflictException($"Product with name {model.Name} already exists");
             }
@@ -75,8 +99,10 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Services
             product.Name = model.Name;
             product.Description = model.Description;
             product.Price = model.Price;
-            _cache.Set(product);
-            return product;
+
+            _context.Products.Update(product);
+            await _context.SaveChangesAsync(ct);
+            return product.ToDto();
         }
     }
 }
