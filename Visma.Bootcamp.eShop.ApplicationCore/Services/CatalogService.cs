@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Visma.Bootcamp.eShop.ApplicationCore.Database;
@@ -64,11 +65,19 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Services
             await _context.SaveChangesAsync(ct);
         }
 
-        public async Task<List<CatalogDto>> GetAllAsync(CancellationToken ct = default)
+        public async Task<List<CatalogDto>> GetAllAsync(
+            Expression<Func<Catalog, bool>> predicate = null,
+            CancellationToken ct = default)
         {
-            var catalogs = await _context.Catalogs
-                .AsNoTracking()
-                .ToListAsync(ct);
+            IQueryable<Catalog> query = _context.Catalogs
+                .AsNoTracking();
+
+            if (predicate != null)
+            {
+                query = query.Where(predicate);
+            }
+
+            var catalogs = await query.ToListAsync(ct);
             return catalogs.Select(x => x.ToDto()).ToList();
         }
 

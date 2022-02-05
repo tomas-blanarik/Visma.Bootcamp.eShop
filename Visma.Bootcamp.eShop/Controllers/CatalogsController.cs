@@ -36,7 +36,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             Tags = new[] { "Catalog API" })]
         public async Task<IActionResult> GetCatalogsAsync(CancellationToken ct)
         {
-            List<CatalogDto> listOfCatalogs = await _catalogService.GetAllAsync(ct);
+            List<CatalogDto> listOfCatalogs = await _catalogService.GetAllAsync(ct: ct);
             return Ok(listOfCatalogs);
         }
 
