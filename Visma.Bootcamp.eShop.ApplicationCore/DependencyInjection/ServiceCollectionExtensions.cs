@@ -10,7 +10,6 @@ using Serilog.Events;
 using Serilog.Exceptions;
 using Visma.Bootcamp.eShop.ApplicationCore.Database;
 using Visma.Bootcamp.eShop.ApplicationCore.Infrastructure;
-using Visma.Bootcamp.eShop.ApplicationCore.Profiles;
 using Visma.Bootcamp.eShop.ApplicationCore.Services;
 using Visma.Bootcamp.eShop.ApplicationCore.Services.Interfaces;
 
@@ -23,11 +22,10 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.DependencyInjection
             IConfiguration configuration,
             IWebHostEnvironment environment)
         {
-            AddAutoMapper(services);
             AddDatabase(services, configuration);
             AddLogging(services, environment);
             AddServices(services);
-            AddCache(services);
+            AddCache(services, configuration);
 
             return services;
         }
@@ -73,15 +71,24 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.DependencyInjection
             });
         }
 
-        private static void AddAutoMapper(IServiceCollection services)
+        private static void AddCache(IServiceCollection services, IConfiguration configuration)
         {
-            services.AddAutoMapper(typeof(AutoMapperProfile));
-        }
+            if (bool.TryParse(configuration["UseRedisCache"], out bool useRedisCache) && useRedisCache)
+            {
+                string connectionString = configuration.GetConnectionString("RedisConnection");
+                services.AddStackExchangeRedisCache(options =>
+                {
+                    options.Configuration = connectionString;
+                    options.InstanceName = "Redis Cache";
+                });
 
-        private static void AddCache(IServiceCollection services)
-        {
-            services.AddMemoryCache();
-            services.AddSingleton<CacheManager>();
+                services.AddSingleton<ICacheManager, DistributedCacheManager>();
+            }
+            else
+            {
+                services.AddMemoryCache();
+                services.AddSingleton<ICacheManager, CacheManager>();
+            }
         }
         #endregion
     }

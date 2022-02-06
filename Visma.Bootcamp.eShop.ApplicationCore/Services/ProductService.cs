@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,12 +13,10 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Services
     public class ProductService : IProductService
     {
         private ApplicationContext _context;
-        private readonly IMapper _mapper;
 
-        public ProductService(ApplicationContext context, IMapper mapper)
+        public ProductService(ApplicationContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         public async Task<ProductDto> CreateAsync(

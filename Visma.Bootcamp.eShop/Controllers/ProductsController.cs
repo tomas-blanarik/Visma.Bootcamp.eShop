@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
-using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models.Errors;
 using Visma.Bootcamp.eShop.ApplicationCore.Services.Interfaces;
 
 namespace Visma.Bootcamp.eShop.Controllers
@@ -27,7 +26,7 @@ namespace Visma.Bootcamp.eShop.Controllers
 
         [HttpGet("{product_id}", Name = GetProductRouteName)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDto))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(NotFoundError))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [SwaggerOperation(
             summary: "Create product in existing catalog",
             description: "Create product in the database and associate it with catalog",
@@ -43,8 +42,8 @@ namespace Visma.Bootcamp.eShop.Controllers
 
         [HttpPut("{product_id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDto))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(NotFoundError))]
-        [ProducesResponseType(StatusCodes.Status409Conflict, Type = typeof(ConflictError))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         [SwaggerOperation(
             summary: "Update product",
             description: "Update product in the database",
@@ -61,7 +60,7 @@ namespace Visma.Bootcamp.eShop.Controllers
 
         [HttpDelete("{product_id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(NotFoundError))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [SwaggerOperation(
             summary: "Delete product",
             description: "Delete product from the database",

@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
-using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models.Errors;
 using Visma.Bootcamp.eShop.ApplicationCore.Services.Interfaces;
 
 namespace Visma.Bootcamp.eShop.Controllers
@@ -28,7 +27,7 @@ namespace Visma.Bootcamp.eShop.Controllers
         public const string GetCatalogRouteName = "getcatalog";
 
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<CatalogDto>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<CatalogBaseDto>))]
         [SwaggerOperation(
             summary: "Retrieve all catalogs from the system",
             description: "Return all catalogs with their products",
@@ -36,13 +35,13 @@ namespace Visma.Bootcamp.eShop.Controllers
             Tags = new[] { "Catalog API" })]
         public async Task<IActionResult> GetCatalogsAsync(CancellationToken ct)
         {
-            List<CatalogDto> listOfCatalogs = await _catalogService.GetAllAsync(ct: ct);
+            List<CatalogBaseDto> listOfCatalogs = await _catalogService.GetAllAsync(ct: ct);
             return Ok(listOfCatalogs);
         }
 
         [HttpGet("{catalog_id}/products", Name = GetCatalogRouteName)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CatalogDto))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(NotFoundError))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [SwaggerOperation(
             summary: "Retrieve catalogue based on its Id",
             description: "Return catalog given by catalogId and all its products associated to it",
@@ -58,7 +57,7 @@ namespace Visma.Bootcamp.eShop.Controllers
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(CatalogDto))]
-        [ProducesResponseType(StatusCodes.Status409Conflict, Type = typeof(ConflictError))]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         [SwaggerOperation(
             summary: "Create new catalog",
             description: "Create new catalog in the database",
@@ -71,14 +70,14 @@ namespace Visma.Bootcamp.eShop.Controllers
             CatalogDto catalogDto = await _catalogService.CreateAsync(model, ct);
             return CreatedAtRoute(
                 GetCatalogRouteName,
-                new { catalog_id = catalogDto.Id },
+                new { catalog_id = catalogDto.PublicId },
                 catalogDto);
         }
 
         [HttpPut("{catalog_id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CatalogDto))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(NotFoundError))]
-        [ProducesResponseType(StatusCodes.Status409Conflict, Type = typeof(ConflictError))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         [SwaggerOperation(
             summary: "Update existing catalog",
             description: "Create new catalog in the database",
@@ -95,7 +94,7 @@ namespace Visma.Bootcamp.eShop.Controllers
 
         [HttpDelete("{catalog_id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(NotFoundError))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [SwaggerOperation(
             summary: "Delete existing catalog",
             description: "Delete catalog from the database with all its products",
@@ -111,7 +110,7 @@ namespace Visma.Bootcamp.eShop.Controllers
 
         [HttpPost("{catalog_id}/products")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ProductDto))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(NotFoundError))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [SwaggerOperation(
             summary: "Create product in existing catalog",
             description: "Create product in the database and associate it with catalog",

@@ -65,7 +65,7 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Services
             await _context.SaveChangesAsync(ct);
         }
 
-        public async Task<List<CatalogDto>> GetAllAsync(
+        public async Task<List<CatalogBaseDto>> GetAllAsync(
             Expression<Func<Catalog, bool>> predicate = null,
             CancellationToken ct = default)
         {
@@ -78,7 +78,7 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Services
             }
 
             var catalogs = await query.ToListAsync(ct);
-            return catalogs.Select(x => x.ToDto()).ToList();
+            return catalogs.Select(x => (CatalogBaseDto)x.ToDto()).ToList();
         }
 
         public async Task<CatalogDto> GetAsync(

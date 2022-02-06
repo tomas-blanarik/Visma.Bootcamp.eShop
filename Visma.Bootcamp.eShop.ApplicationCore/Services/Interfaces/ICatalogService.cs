@@ -11,7 +11,7 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Services.Interfaces
 {
     public interface ICatalogService
     {
-        Task<List<CatalogDto>> GetAllAsync(
+        Task<List<CatalogBaseDto>> GetAllAsync(
             Expression<Func<Catalog, bool>> predicate = null,
             CancellationToken ct = default);
         Task<CatalogDto> GetAsync(Guid catalogId, CancellationToken ct = default);

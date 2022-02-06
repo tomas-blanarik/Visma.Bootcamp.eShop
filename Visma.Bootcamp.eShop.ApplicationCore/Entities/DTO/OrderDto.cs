@@ -1,9 +1,6 @@
-﻿using System;
-
-namespace Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO
+﻿namespace Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO
 {
-    public class OrderDto : ICacheableDto
+    public class OrderDto
     {
-        public Guid Id => Guid.NewGuid();
     }
 }

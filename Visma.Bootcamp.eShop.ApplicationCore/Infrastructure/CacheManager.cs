@@ -2,11 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
 
 namespace Visma.Bootcamp.eShop.ApplicationCore.Infrastructure
 {
-    public class CacheManager
+    public class CacheManager : ICacheManager
     {
         private readonly IDictionary<Type, string> _domainTypes;
         private readonly IMemoryCache _cache;
@@ -16,9 +18,6 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Infrastructure
             _cache = cache;
             _domainTypes = new Dictionary<Type, string>
             {
-                { typeof(ProductDto), "Products" },
-                { typeof(CatalogDto), "Catalogs" },
-                { typeof(OrderDto), "Orders" },
                 { typeof(BasketDto), "Baskets" }
             };
         }
@@ -28,10 +27,10 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Infrastructure
             string category = GetCategoryOrThrow(typeof(T));
             if (_cache.TryGetValue(category, out List<T> cachedItems))
             {
-                var chachedItem = cachedItems.SingleOrDefault(x => x.Id == item.Id);
-                if (cachedItems != null)
+                var cachedItem = cachedItems.SingleOrDefault(x => x.Id == item.Id);
+                if (cachedItem != null)
                 {
-                    cachedItems.Remove(chachedItem);
+                    cachedItems.Remove(cachedItem);
                 }
 
                 cachedItems.Add(item);
@@ -78,6 +77,28 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Infrastructure
             return !_domainTypes.ContainsKey(itemType)
                 ? throw new Exception("Unsupported type of cacheable object")
                 : _domainTypes[itemType];
+        }
+
+        public Task SetAsync<T>(T item, CancellationToken ct = default) where T : ICacheableDto
+        {
+            Set<T>(item);
+            return Task.CompletedTask;
+        }
+
+        public async Task<List<T>> GetAsync<T>(CancellationToken ct = default) where T : ICacheableDto
+        {
+            return await Task.FromResult(Get<T>());
+        }
+
+        public async Task<T> GetAsync<T>(Guid itemId, CancellationToken ct = default) where T : ICacheableDto
+        {
+            return await Task.FromResult(Get<T>(itemId));
+        }
+
+        public Task RemoveAsync<T>(Guid itemId, CancellationToken ct = default) where T : ICacheableDto
+        {
+            Remove<T>(itemId);
+            return Task.CompletedTask;
         }
     }
 }

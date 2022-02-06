@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
-using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models.Errors;
 using Visma.Bootcamp.eShop.ApplicationCore.Services.Interfaces;
 
 namespace Visma.Bootcamp.eShop.Controllers
@@ -62,8 +61,8 @@ namespace Visma.Bootcamp.eShop.Controllers
 
         [HttpPut("{basket_id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(BadRequestError))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(NotFoundError))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [SwaggerOperation(
             summary: "Update basket",
             description: "Update basket based on given basketId with items collection and their quantities",
@@ -80,8 +79,8 @@ namespace Visma.Bootcamp.eShop.Controllers
 
         [HttpDelete("basket_id/items/{item_id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(BadRequestError))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(NotFoundError))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [SwaggerOperation(
             summary: "Remove item from basket",
             description: "Remove item from the basket by given basketId and itemId",
@@ -94,6 +93,22 @@ namespace Visma.Bootcamp.eShop.Controllers
         {
             await _basketService.DeleteItemAsync(basketId.Value, itemId.Value, ct);
             return NoContent();
+        }
+
+        [HttpPost("{basket_id}/order")]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(OrderDto))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+        [SwaggerOperation(
+            summary: "Create order from basket content",
+            description: "Get basket by given basketId and create order",
+            OperationId = "CreateOrder",
+            Tags = new[] { "Order Management" })]
+        public async Task<IActionResult> CreateOrderAsync(
+            [Required, FromRoute(Name = "basket_id")] Guid? basketId,
+            CancellationToken ct)
+        {
+            return NotFound();
         }
     }
 }
