@@ -131,8 +131,8 @@ namespace Visma.Bootcamp.ApiTests.Steps
             Assert.That(_catalogDto.Description, Is.EqualTo(description), $"Description does not match");
         }
 
-        [Then("I see last response is status-'(.*)'")]
-        public void ThenISeeLastResponseIsStatus(HttpStatusCode status)
+        [Then("I see catalog last response is status-'(.*)'")]
+        public void ThenISeeCatalogLastResponseIsStatus(HttpStatusCode status)
         {
             VerifyResponse(_lastResponse, status);
         }
@@ -153,15 +153,9 @@ namespace Visma.Bootcamp.ApiTests.Steps
         {
             Assert.That(_catalogListResponse.Data.Count, Is.EqualTo(count), $"Count does not match");
         }
-        
-        [Then("I see product values: name-'(.*)' description-'(.*)' price-'(.*)'")]
-        public void ThenISeeProductValues(string name, string description, string price)
-        {
-            AssertProductValues(_productDto, name, description, price);
-        }
 
-        [Then("I see catalog product values: name-'(.*)' description-'(.*)' price-'(.*)'")]
-        public void ThenISeeCatalogProductValues(string name, string description, string price)
+        [Then("I see catalog product list values: name-'(.*)' description-'(.*)' price-'(.*)'")]
+        public void ThenISeeCatalogProductListValues(string name, string description, string price)
         {
             var firstOrDefault = _catalogResponse.Data.Products.FirstOrDefault(x => x.Name == name);
 
@@ -170,6 +164,12 @@ namespace Visma.Bootcamp.ApiTests.Steps
             AssertProductValues(firstOrDefault, name, description, price);
         }
 
+        [Then("I see catalog product values: name-'(.*)' description-'(.*)' price-'(.*)'")]
+        public void ThenISeeCatalogProductValues(string name, string description, string price)
+        {
+            AssertProductValues(_productDto, name, description, price);
+        }
+        
         #region Private
 
         private void StartCreatingNewCatalog()
@@ -188,7 +188,7 @@ namespace Visma.Bootcamp.ApiTests.Steps
             _catalogResponse = Call.Catalog.CreateCatalog(_catalogDto);
             _lastResponse = _catalogResponse;
 
-            if (_lastResponse.IsSuccessful)
+            if (_catalogResponse.IsSuccessful)
             {
                 _catalogContext.AddCatalog(_catalogResponse.Data);
                 _catalogDto = _catalogResponse.Data;
@@ -197,7 +197,7 @@ namespace Visma.Bootcamp.ApiTests.Steps
 
         private void AddProductToCatalog(string catalog, string name, string description, string price)
         {
-            var productModel = new ProductModel()
+            var productModel = new ProductDto()
             {
                 Name = name,
                 Description = description,
@@ -207,7 +207,7 @@ namespace Visma.Bootcamp.ApiTests.Steps
             _productResponse = Call.Catalog.AddProductToCatalog(_catalogContext.GetIdOrDefault(catalog), productModel);
             _lastResponse = _productResponse;
 
-            if (_lastResponse.IsSuccessful)
+            if (_productResponse.IsSuccessful)
             {
                 _productContext.AddProduct(_productResponse.Data);
                 _productDto = _productResponse.Data;
@@ -219,7 +219,7 @@ namespace Visma.Bootcamp.ApiTests.Steps
             _catalogResponse = Call.Catalog.UpdateCatalog(_catalogDto, _catalogDto.PublicId);
             _lastResponse = _catalogResponse;
 
-            if (_lastResponse.IsSuccessful)
+            if (_catalogResponse.IsSuccessful)
             {
                 _catalogContext.UpdateCatalog(_catalogResponse.Data);
                 _catalogDto = _catalogResponse.Data;
@@ -236,6 +236,11 @@ namespace Visma.Bootcamp.ApiTests.Steps
         {
             _catalogResponse = Call.Catalog.GetCatalog(guid);
             _lastResponse = _catalogResponse;
+            
+            if (_catalogResponse.IsSuccessful)
+            {
+                _catalogDto = _catalogResponse.Data;
+            }
         }
 
         private void RetrieveAllCatalogs()

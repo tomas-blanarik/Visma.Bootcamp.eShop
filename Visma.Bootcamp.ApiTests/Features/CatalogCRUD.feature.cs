@@ -156,7 +156,7 @@ this.ScenarioInitialize(scenarioInfo);
                         "", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 11
- testRunner.Then("I see last response is status-\'Conflict\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("I see catalog last response is status-\'Conflict\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -199,7 +199,7 @@ this.ScenarioInitialize(scenarioInfo);
                         "10\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 17
- testRunner.Then("I see product values: name-\'product\' description-\'desc\' price-\'10\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("I see catalog product values: name-\'product\' description-\'desc\' price-\'10\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
 #line 19
  testRunner.When("I retrieve catalog: name-\'firstCatalog\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
@@ -209,7 +209,7 @@ this.ScenarioInitialize(scenarioInfo);
                         "", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
 #line 21
- testRunner.And("I see catalog product values: name-\'product\' description-\'desc\' price-\'10\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I see catalog product list values: name-\'product\' description-\'desc\' price-\'10\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -248,7 +248,7 @@ this.ScenarioInitialize(scenarioInfo);
                         "sc\' price-\'10\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 25
- testRunner.Then("I see last response is status-\'NotFound\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("I see catalog last response is status-\'NotFound\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -339,7 +339,7 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.And("I update this catalog to fail", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
 #line 40
- testRunner.Then("I see last response is status-\'Conflict\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("I see catalog last response is status-\'Conflict\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -383,7 +383,7 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.And("I update this catalog to fail", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
 #line 46
- testRunner.Then("I see last response is status-\'NotFound\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("I see catalog last response is status-\'NotFound\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -425,7 +425,7 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.When("I delete catalog name-\'myCatalog\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 52
- testRunner.Then("I see last response is status-\'NoContent\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("I see catalog last response is status-\'NoContent\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -463,7 +463,7 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.When("I delete catalog name-\'myCatalog\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 56
- testRunner.Then("I see last response is status-\'NotFound\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("I see catalog last response is status-\'NotFound\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -544,7 +544,7 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.When("I retrieve catalog to fail: name-\'firstCatalog\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 66
- testRunner.Then("I see last response is status-\'NotFound\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("I see catalog last response is status-\'NotFound\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();

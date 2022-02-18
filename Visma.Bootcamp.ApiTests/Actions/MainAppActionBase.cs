@@ -26,7 +26,7 @@ namespace Visma.Bootcamp.ApiTests.Actions
             return model;
         }
 
-        protected object AddUniqueIdentifier(ProductModel model)
+        protected object AddUniqueIdentifier(ProductDto model)
         {
             // add suffix to Name to ensure uniqueness
             model.Name += Current.TestScenarioCorrelationId;

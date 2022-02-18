@@ -29,7 +29,7 @@ namespace Visma.Bootcamp.ApiTests.Actions
             return result;
         }
 
-        public IRestResponse<ProductDto> AddProductToCatalog(Guid id, ProductModel model)
+        public IRestResponse<ProductDto> AddProductToCatalog(Guid id, ProductDto model)
         {
             var request = CreateRequest(Method.POST, $"{id}/products");
             request.AddJsonBody(AddUniqueIdentifier(model));
