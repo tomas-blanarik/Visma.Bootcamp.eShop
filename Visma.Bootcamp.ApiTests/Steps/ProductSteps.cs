@@ -14,8 +14,8 @@ namespace Visma.Bootcamp.ApiTests.Steps
     {
         private readonly CatalogContext _catalogContext;
         private readonly ProductContext _productContext;
-        private IRestResponse _lastResponse;
-        private IRestResponse<ProductDto> _productResponse;
+        private RestResponse _lastResponse;
+        private RestResponse<ProductDto> _productResponse;
         private ProductDto _productDto;
 
         public ProductSteps(CatalogContext catalogContext, ProductContext productContext)

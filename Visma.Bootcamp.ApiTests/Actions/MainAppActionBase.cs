@@ -1,7 +1,6 @@
 ﻿using RestSharp;
 using Visma.Bootcamp.ApiTests.Infrastructure;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
-using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
 
 namespace Visma.Bootcamp.ApiTests.Actions
 {
@@ -10,7 +9,7 @@ namespace Visma.Bootcamp.ApiTests.Actions
         public MainAppActionBase(string resource) : base(resource)
         { }
 
-        protected override IRestResponse<T> Execute<T>(RestRequest request)
+        protected override RestResponse<T> Execute<T>(RestRequest request)
         {            
             var restClient = new RestClient("https://localhost:5001/api/");
 

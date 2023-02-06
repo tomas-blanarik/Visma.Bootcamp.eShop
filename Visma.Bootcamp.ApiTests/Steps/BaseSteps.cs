@@ -11,7 +11,7 @@ namespace Visma.Bootcamp.ApiTests.Steps
         {
         }
 
-        protected void VerifyResponse(IRestResponse response, HttpStatusCode statusCode, 
+        protected void VerifyResponse(RestResponse response, HttpStatusCode statusCode, 
             [CallerLineNumber] int callerLineNumber = 0, [CallerMemberName] string callerMemberName = "", [CallerFilePath] string callerFilePath = "")
         {
             Assert.That(response.StatusCode, Is.EqualTo(statusCode),

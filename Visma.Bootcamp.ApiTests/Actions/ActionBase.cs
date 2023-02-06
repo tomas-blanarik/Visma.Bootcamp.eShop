@@ -23,6 +23,6 @@ namespace Visma.Bootcamp.ApiTests.Actions
             return request;
         }
 
-        protected abstract IRestResponse<T> Execute<T>(RestRequest request);
+        protected abstract RestResponse<T> Execute<T>(RestRequest request);
     }
 }

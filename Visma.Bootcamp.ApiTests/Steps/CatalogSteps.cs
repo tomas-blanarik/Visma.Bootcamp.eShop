@@ -8,7 +8,6 @@ using TechTalk.SpecFlow;
 using Visma.Bootcamp.ApiTests.Contexts;
 using Visma.Bootcamp.ApiTests.Infrastructure;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
-using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
 
 namespace Visma.Bootcamp.ApiTests.Steps
 {
@@ -18,11 +17,11 @@ namespace Visma.Bootcamp.ApiTests.Steps
         private readonly CatalogContext _catalogContext;
         private readonly ProductContext _productContext;
         private CatalogDto _catalogDto;
-        private IRestResponse<CatalogDto> _catalogResponse;
-        private IRestResponse _lastResponse;
-        private IRestResponse<object> _catalogDeleteResponse;
-        private IRestResponse<List<CatalogBaseDto>> _catalogListResponse;
-        private IRestResponse<ProductDto> _productResponse;
+        private RestResponse<CatalogDto> _catalogResponse;
+        private RestResponse _lastResponse;
+        private RestResponse<object> _catalogDeleteResponse;
+        private RestResponse<List<CatalogBaseDto>> _catalogListResponse;
+        private RestResponse<ProductDto> _productResponse;
         private ProductDto _productDto;
 
         public CatalogSteps(CatalogContext catalogContext, ProductContext productContext)

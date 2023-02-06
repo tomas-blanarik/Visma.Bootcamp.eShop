@@ -4,7 +4,6 @@ using System.Linq;
 using RestSharp;
 using Visma.Bootcamp.ApiTests.Infrastructure;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
-using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
 
 namespace Visma.Bootcamp.ApiTests.Actions
 {
@@ -14,9 +13,9 @@ namespace Visma.Bootcamp.ApiTests.Actions
         {
         }
 
-        public IRestResponse<CatalogDto> CreateCatalog(CatalogDto model)
+        public RestResponse<CatalogDto> CreateCatalog(CatalogDto model)
         {
-            var request = CreateRequest(Method.POST, "");
+            var request = CreateRequest(Method.Post, "");
             request.AddJsonBody(AddUniqueIdentifier(model));
             // using CatalogDto instead of CatalogModel because of id for update 
             var result = Execute<CatalogDto>(request);
@@ -29,9 +28,9 @@ namespace Visma.Bootcamp.ApiTests.Actions
             return result;
         }
 
-        public IRestResponse<ProductDto> AddProductToCatalog(Guid id, ProductDto model)
+        public RestResponse<ProductDto> AddProductToCatalog(Guid id, ProductDto model)
         {
-            var request = CreateRequest(Method.POST, $"{id}/products");
+            var request = CreateRequest(Method.Post, $"{id}/products");
             request.AddJsonBody(AddUniqueIdentifier(model));
             // using CatalogDto instead of CatalogModel because of id for update
             var result = Execute<ProductDto>(request);
@@ -44,9 +43,9 @@ namespace Visma.Bootcamp.ApiTests.Actions
             return result;
         }
 
-        public IRestResponse<CatalogDto> UpdateCatalog(CatalogDto model, Guid id)
+        public RestResponse<CatalogDto> UpdateCatalog(CatalogDto model, Guid id)
         {
-            var request = CreateRequest(Method.PUT, id.ToString());
+            var request = CreateRequest(Method.Put, id.ToString());
             request.AddJsonBody(AddUniqueIdentifier(model));
             // using CatalogDto instead of CatalogModel because of id for update
             var result = Execute<CatalogDto>(request);
@@ -59,16 +58,16 @@ namespace Visma.Bootcamp.ApiTests.Actions
             return result;
         }
 
-        public IRestResponse<object> DeleteCatalog(Guid id)
+        public RestResponse<object> DeleteCatalog(Guid id)
         {
-            var request = CreateRequest(Method.DELETE, id.ToString());
+            var request = CreateRequest(Method.Delete, id.ToString());
             var result = Execute<object>(request);
             return result;
         }
 
-        public IRestResponse<CatalogDto> GetCatalog(Guid id)
+        public RestResponse<CatalogDto> GetCatalog(Guid id)
         {
-            var request = CreateRequest(Method.GET, $"{id}/products");
+            var request = CreateRequest(Method.Get, $"{id}/products");
             var result = Execute<CatalogDto>(request);
 
             if (result.Data != null)
@@ -79,9 +78,9 @@ namespace Visma.Bootcamp.ApiTests.Actions
             return result;
         }
 
-        public IRestResponse<List<CatalogBaseDto>> GetAllCatalogs()
+        public RestResponse<List<CatalogBaseDto>> GetAllCatalogs()
         {
-            var request = CreateRequest(Method.GET, $"");
+            var request = CreateRequest(Method.Get, $"");
             var result = Execute<List<CatalogBaseDto>>(request);
 
             if (result.Data != null)
