@@ -4,7 +4,6 @@ using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading;
-using System.Threading.Tasks;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models.Errors;
@@ -23,7 +22,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             description: "Create product in the database and associate it with catalog",
             OperationId = "CreateProduct",
             Tags = new[] { "Product API" })]
-        public async Task<IActionResult> GetProductAsync(
+        public IActionResult GetProduct(
             [Required, FromRoute(Name = "product_id")] Guid? productId,
             CancellationToken ct)
         {
@@ -47,7 +46,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             description: "Update product in the database",
             OperationId = "UpdateProduct",
             Tags = new[] { "Product Management" })]
-        public async Task<IActionResult> UpdateProductAsync(
+        public IActionResult UpdateProduct(
             [Required, FromRoute(Name = "product_id")] Guid? productId,
             [Bind, FromBody] ProductModel model,
             CancellationToken ct)
@@ -63,7 +62,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             description: "Delete product from the database",
             OperationId = "DeleteProduct",
             Tags = new[] { "Product Management" })]
-        public async Task<IActionResult> DeleteProductAsync(
+        public IActionResult DeleteProduct(
             [Required, FromRoute(Name = "product_id")] Guid? productId,
             CancellationToken ct)
         {

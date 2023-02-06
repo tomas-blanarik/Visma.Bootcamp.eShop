@@ -2,8 +2,6 @@
 using NSubstitute;
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
 using Visma.Bootcamp.eShop.ApplicationCore.Exceptions;
@@ -29,11 +27,10 @@ namespace Visma.Bootcamp.eShop.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetCatalogsAsync_StateUnderTest_ExpectedBehavior()
+        public void GetCatalogs_StateUnderTest_ExpectedBehavior()
         {
             // Arrange
             var catalogsController = this.CreateCatalogsController();
-            CancellationToken ct = default(global::System.Threading.CancellationToken);
             var list = new List<CatalogDto>
             {
                 new CatalogDto
@@ -48,8 +45,7 @@ namespace Visma.Bootcamp.eShop.Tests.Controllers
             subCatalogService.Get().Returns(list);
 
             // Act
-            var result = await catalogsController.GetCatalogsAsync(
-                ct);
+            var result = catalogsController.GetCatalogs();
 
             // Assert
             subCatalogService.Received().Get();
@@ -70,31 +66,27 @@ namespace Visma.Bootcamp.eShop.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetCatalogAsync_StateUnderTest_ExpectedBehavior()
+        public void GetCatalog_StateUnderTest_ExpectedBehavior()
         {
             // Arrange
             var catalogsController = this.CreateCatalogsController();
             Guid? catalogId = null;
-            CancellationToken ct = default(global::System.Threading.CancellationToken);
 
             // Act
-            var result = await catalogsController.GetCatalogAsync(
-                catalogId,
-                ct);
+            var result = catalogsController.GetCatalog(catalogId);
 
             // Assert
             Assert.True(false);
         }
 
         [Fact]
-        public async Task CreateCatalogAsync_StateUnderTest_ExpectedBehavior()
+        public void CreateCatalog_StateUnderTest_ExpectedBehavior()
         {
             // Arrange
             const string catalogName = "Test name #1";
             const string catalogDescription = "Test Description #1";
 
             var catalogsController = this.CreateCatalogsController();
-            CancellationToken ct = default(global::System.Threading.CancellationToken);
 
             CatalogModel model = new CatalogModel
             {
@@ -113,9 +105,7 @@ namespace Visma.Bootcamp.eShop.Tests.Controllers
                 .Returns(catalogDto);
 
             // Act
-            var result = await catalogsController.CreateCatalogAsync(
-                model,
-                ct);
+            var result = catalogsController.CreateCatalog(model);
 
             subCatalogService.Received().Create(Arg.Is(model));
 
@@ -130,11 +120,10 @@ namespace Visma.Bootcamp.eShop.Tests.Controllers
         }
 
         [Fact]
-        public async Task CreateCatalogAsync_StateUnderTest_ConflictException()
+        public void CreateCatalog_StateUnderTest_ConflictException()
         {
             // Arrange
             var catalogsController = this.CreateCatalogsController();
-            CancellationToken ct = default(global::System.Threading.CancellationToken);
             CatalogModel model = new CatalogModel();
 
             subCatalogService.Create(Arg.Any<CatalogModel>())
@@ -144,63 +133,52 @@ namespace Visma.Bootcamp.eShop.Tests.Controllers
                 });
 
             // Act + Assert
-            await Assert.ThrowsAsync<ConflictException>(async () =>
+            Assert.Throws<ConflictException>(() =>
             {
-                await catalogsController.CreateCatalogAsync(
-                    model,
-                    ct);
+                catalogsController.CreateCatalog(model);
             });
 
         }
 
         [Fact]
-        public async Task UpdateCatalogAsync_StateUnderTest_ExpectedBehavior()
+        public void UpdateCatalog_StateUnderTest_ExpectedBehavior()
         {
             // Arrange
             var catalogsController = this.CreateCatalogsController();
             Guid? catalogId = null;
             CatalogModel model = null;
-            CancellationToken ct = default(global::System.Threading.CancellationToken);
 
             // Act
-            var result = await catalogsController.UpdateCatalogAsync(
-                catalogId,
-                model,
-                ct);
+            var result = catalogsController.UpdateCatalog(catalogId,
+                                                          model);
 
             // Assert
             Assert.True(false);
         }
 
         [Fact]
-        public async Task DeleteCatalogAsync_StateUnderTest_ExpectedBehavior()
+        public void DeleteCatalog_StateUnderTest_ExpectedBehavior()
         {
             // Arrange
             var catalogsController = this.CreateCatalogsController();
             Guid? catalogId = null;
-            CancellationToken ct = default(global::System.Threading.CancellationToken);
 
             // Act
-            var result = await catalogsController.DeleteCatalogAsync(
-                catalogId,
-                ct);
+            var result = catalogsController.DeleteCatalog(catalogId);
 
             // Assert
             Assert.True(false);
         }
 
         [Fact]
-        public async Task AddProductToCatalogAsync_StateUnderTest_ExpectedBehavior()
+        public void AddProductToCatalog_StateUnderTest_ExpectedBehavior()
         {
             // Arrange
             var catalogsController = this.CreateCatalogsController();
             Guid? catalogId = null;
-            CancellationToken ct = default(global::System.Threading.CancellationToken);
 
             // Act
-            var result = await catalogsController.AddProductToCatalogAsync(
-                catalogId,
-                ct);
+            var result = catalogsController.AddProductToCatalog(catalogId);
 
             // Assert
             Assert.True(false);

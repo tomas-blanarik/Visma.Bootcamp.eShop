@@ -4,8 +4,6 @@ using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Threading;
-using System.Threading.Tasks;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models.Errors;
@@ -34,7 +32,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             description: "Return all catalogs with their products",
             OperationId = "GetCatalogs",
             Tags = new[] { "Catalog API" })]
-        public async Task<IActionResult> GetCatalogsAsync(CancellationToken ct)
+        public IActionResult GetCatalogs()
         {
             return Ok(_service.Get());
         }
@@ -47,9 +45,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             description: "Return catalog given by catalogId and all its products associated to it",
             OperationId = "GetCatalog",
             Tags = new[] { "Product API" })]
-        public async Task<IActionResult> GetCatalogAsync(
-            [Required, FromRoute(Name = "catalog_id")] Guid? catalogId,
-            CancellationToken ct)
+        public IActionResult GetCatalog([Required, FromRoute(Name = "catalog_id")] Guid? catalogId)
         {
             return Ok(_service.Get(catalogId.Value));
         }
@@ -62,9 +58,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             description: "Create new catalog in the database",
             OperationId = "CreateCatalog",
             Tags = new[] { "Catalog Management" })]
-        public async Task<IActionResult> CreateCatalogAsync(
-            [FromBody, Bind] CatalogModel model,
-            CancellationToken ct)
+        public IActionResult CreateCatalog([FromBody, Bind] CatalogModel model)
         {
             var catalogDto = _service.Create(model);
             return CreatedAtAction(
@@ -82,10 +76,8 @@ namespace Visma.Bootcamp.eShop.Controllers
             description: "Create new catalog in the database",
             OperationId = "UpdateCatalog",
             Tags = new[] { "Catalog Management" })]
-        public async Task<IActionResult> UpdateCatalogAsync(
-            [Required, FromRoute(Name = "catalog_id")] Guid? catalogId,
-            [FromBody, Bind] CatalogModel model,
-            CancellationToken ct)
+        public IActionResult UpdateCatalog([Required, FromRoute(Name = "catalog_id")] Guid? catalogId,
+                                           [FromBody, Bind] CatalogModel model)
         {
             return Ok(_service.Update(catalogId.Value, model));
         }
@@ -98,9 +90,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             description: "Delete catalog from the database with all its products",
             OperationId = "DeleteCatalog",
             Tags = new[] { "Catalog Management" })]
-        public async Task<IActionResult> DeleteCatalogAsync(
-            [Required, FromRoute(Name = "catalog_id")] Guid? catalogId,
-            CancellationToken ct)
+        public IActionResult DeleteCatalog([Required, FromRoute(Name = "catalog_id")] Guid? catalogId)
         {
             _service.Delete(catalogId.Value);
             return NoContent();
@@ -114,9 +104,7 @@ namespace Visma.Bootcamp.eShop.Controllers
             description: "Create product in the database and associate it with catalog",
             OperationId = "CreateProductWithCatalogId",
             Tags = new[] { "Product Management" })]
-        public async Task<IActionResult> AddProductToCatalogAsync(
-            [Required, FromRoute(Name = "catalog_id")] Guid? catalogId,
-            CancellationToken ct)
+        public IActionResult AddProductToCatalog([Required, FromRoute(Name = "catalog_id")] Guid? catalogId)
         {
             return BadRequest("Not implemented");
         }
