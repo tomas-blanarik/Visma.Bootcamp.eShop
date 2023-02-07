@@ -6,16 +6,16 @@ Visma Bootcamp eShop project is a baseline for training program within Visma Boo
 
 In order to start with the development, we need these tools:
 
-* Visual Studio 2019 Community Edition (required)
+* Visual Studio 2022 Community Edition
   * Make sure to install C#, .NET Core
-* Visual Studio Code (recommended)
+* Visual Studio Code **(recommended)**
   * Install C# Extension
   * You'll need VS Code next week
-* MySQLWorkbench (recommended) or DBeaver
-* Docker Community Edition (required)
-* Postman (required)
-* Git (required)
-* Github Desktop (recommended)
+* MySQLWorkbench, DBeaver
+* Docker Community Edition
+* Postman 
+* Git **(required)**
+* Github Desktop *(recommended)*
 
 ## Bootcamp Schedule
 
