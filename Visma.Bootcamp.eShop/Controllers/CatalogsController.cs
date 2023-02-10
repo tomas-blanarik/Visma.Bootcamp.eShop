@@ -39,14 +39,14 @@ namespace Visma.Bootcamp.eShop.Controllers
             return Ok(listOfCatalogs);
         }
 
-        [HttpGet("{catalog_id}/products", Name = GetCatalogRouteName)]
+        [HttpGet("{catalog_id}", Name = GetCatalogRouteName)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CatalogDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [SwaggerOperation(
             summary: "Retrieve catalogue based on its Id",
             description: "Return catalog given by catalogId and all its products associated to it",
             OperationId = "GetCatalog",
-            Tags = new[] { "Product API" })]
+            Tags = new[] { "Catalog API" })]
         public async Task<IActionResult> GetCatalogAsync(
             [Required, FromRoute(Name = "catalog_id")] Guid? catalogId,
             CancellationToken ct)
