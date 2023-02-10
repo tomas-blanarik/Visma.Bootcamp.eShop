@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Visma.Bootcamp.eShop.ApplicationCore.Entities.Domain;
 
 namespace Visma.Bootcamp.eShop.ApplicationCore.Entities.Models
 {
@@ -12,5 +13,15 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Entities.Models
 
         [Required]
         public decimal Price { get; set; }
+
+        public Product ToDomain()
+        {
+            return new Product
+            {
+                Name = this.Name,
+                Description = this.Description,
+                Price = this.Price
+            };
+        }
     }
 }

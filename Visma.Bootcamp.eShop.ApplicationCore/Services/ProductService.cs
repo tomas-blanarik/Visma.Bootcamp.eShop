@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Visma.Bootcamp.eShop.ApplicationCore.Database;
+using Visma.Bootcamp.eShop.ApplicationCore.Entities.Domain;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
 using Visma.Bootcamp.eShop.ApplicationCore.Exceptions;
@@ -13,27 +16,44 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Services
 {
     public class ProductService : IProductService
     {
-        private readonly CacheManager _cache;
+        private readonly ApplicationContext _context;
+        private readonly Infrastructure.CacheManager _cache;
         private readonly IMapper _mapper;
 
-        public ProductService(CacheManager cache, IMapper mapper)
+        public ProductService(Infrastructure.CacheManager cache, IMapper mapper, ApplicationContext context)
         {
             _cache = cache;
             _mapper = mapper;
+            _context = context;
         }
 
         public async Task<ProductDto> CreateAsync(Guid catalogId, ProductModel model, CancellationToken ct = default)
         {
-            var products = _cache.Get<ProductDto>();
-            if (products.Any(x => x.Name == model.Name))
+            Catalog catalog = await _context.Catalogs
+                .AsNoTracking()
+                .SingleOrDefaultAsync(c => c.PublicId == catalogId, ct);
+            if (catalog == null)
+            {
+                throw new NotFoundException($"Catalog with ID: {catalogId} doesn't exist");
+            }
+
+            Product duplicate = await _context.Products
+                .AsNoTracking()
+                .SingleOrDefaultAsync(p => p.Name == model.Name, ct);
+            if (duplicate != null)
             {
                 throw new ConflictException($"Product with name {model.Name} already exists");
             }
 
-            var product = _mapper.Map<ProductDto>(model);
+            Product product = model.ToDomain();
             product.PublicId = Guid.NewGuid();
-            _cache.Set(product);
-            return product;
+            product.CatalogId = catalog.Id;
+
+            await _context.Products.AddAsync(product, ct);
+            await _context.SaveChangesAsync(ct);
+
+            ProductDto dto = product.ToDto();
+            return dto;
         }
 
         public async Task DeleteAsync(Guid productId, CancellationToken ct = default)

@@ -33,10 +33,9 @@ namespace Visma.Bootcamp.eShop.Controllers
             description: "Associate given productId with actual basket of the user, which is represented by basketId",
             OperationId = "AddToBasket",
             Tags = new[] { "Basket Management" })]
-        public async Task<IActionResult> AddToBasketAsync(
-            [Required, FromRoute(Name = "basket_id")] Guid? basketId,
-            [Bind, FromBody] BasketItemModel model,
-            CancellationToken ct)
+        public async Task<IActionResult> AddToBasketAsync([Required, FromRoute(Name = "basket_id")] Guid? basketId,
+                                                          [Bind, FromBody] BasketItemModel model,
+                                                          CancellationToken ct)
         {
             BasketDto basketDto = await _basketService.AddItemAsync(basketId.Value, model, ct);
             return CreatedAtAction(
@@ -52,9 +51,8 @@ namespace Visma.Bootcamp.eShop.Controllers
             description: "Returns basket by given basketId with all products",
             OperationId = "GetBasket",
             Tags = new[] { "Basket API" })]
-        public async Task<IActionResult> GetBasketAsync(
-            [Required, FromRoute(Name = "basket_id")] Guid? basketId,
-            CancellationToken ct)
+        public async Task<IActionResult> GetBasketAsync([Required, FromRoute(Name = "basket_id")] Guid? basketId,
+                                                        CancellationToken ct)
         {
             BasketDto basketDto = await _basketService.GetAsync(basketId.Value, ct);
             return Ok(basketDto);
@@ -69,10 +67,9 @@ namespace Visma.Bootcamp.eShop.Controllers
             description: "Update basket based on given basketId with items collection and their quantities",
             OperationId = "UpdateBasket",
             Tags = new[] { "Basket Management" })]
-        public async Task<IActionResult> UpdateBasketAsync(
-            [Required, FromRoute(Name = "basket_id")] Guid? basketId,
-            [FromBody, Bind] BasketModel model,
-            CancellationToken ct)
+        public async Task<IActionResult> UpdateBasketAsync([Required, FromRoute(Name = "basket_id")] Guid? basketId,
+                                                           [FromBody, Bind] BasketModel model,
+                                                           CancellationToken ct)
         {
             await _basketService.UpdateAsync(basketId.Value, model, ct);
             return NoContent();

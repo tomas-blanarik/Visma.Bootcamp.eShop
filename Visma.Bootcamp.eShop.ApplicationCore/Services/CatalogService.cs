@@ -1,9 +1,12 @@
-﻿using AutoMapper;
+﻿using EFCoreSecondLevelCacheInterceptor;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Visma.Bootcamp.eShop.ApplicationCore.Database;
+using Visma.Bootcamp.eShop.ApplicationCore.Entities.Domain;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
 using Visma.Bootcamp.eShop.ApplicationCore.Exceptions;
@@ -14,83 +17,105 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Services
 {
     public class CatalogService : ICatalogService
     {
-        private readonly CacheManager _cache;
-        private readonly IMapper _mapper;
+        private readonly ApplicationContext _context;
 
-        public CatalogService(CacheManager cache, IMapper mapper)
+        public CatalogService(ApplicationContext context)
         {
-            _cache = cache;
-            _mapper = mapper;
+            _context = context;
         }
 
-        public async Task<CatalogDto> CreateAsync(
-            CatalogModel model,
-            CancellationToken ct = default)
+        public async Task<CatalogDto> CreateAsync(CatalogModel model,
+                                                  CancellationToken ct = default)
         {
-            var catalogs = _cache.Get<CatalogDto>();
-            if (catalogs.Any(x => x.Name == model.Name))
+            Catalog duplicate = await _context.Catalogs
+                .AsNoTracking()
+                .SingleOrDefaultAsync(c => c.Name == model.Name, ct);
+
+            if (duplicate != null)
             {
                 throw new ConflictException($"Catalog with name {model.Name} already exists");
             }
 
-            var catalogDto = _mapper.Map<CatalogDto>(model);
-            catalogDto.PublicId = Guid.NewGuid();
-            _cache.Set(catalogDto);
+            Catalog catalog = model.ToDomain();
+            catalog.PublicId = Guid.NewGuid();
+
+            await _context.Catalogs.AddAsync(catalog, ct);
+            await _context.SaveChangesAsync(ct);
+
+            CatalogDto catalogDto = catalog.ToDto();
             return catalogDto;
         }
 
-        public async Task DeleteAsync(
-            Guid catalogId,
-            CancellationToken ct = default)
+        public async Task DeleteAsync(Guid catalogId,
+                                      CancellationToken ct = default)
         {
-            var catalog = _cache.Get<CatalogDto>(catalogId);
+            Catalog catalog = await _context.Catalogs
+                .SingleOrDefaultAsync(c => c.PublicId == catalogId, ct);
             if (catalog == null)
             {
                 throw new NotFoundException($"Catalog with ID: {catalogId} doesn't exist");
             }
 
-            _cache.Remove<CatalogDto>(catalogId);
+            _context.Catalogs.Remove(catalog);
+            await _context.SaveChangesAsync(ct);
         }
 
         public async Task<List<CatalogDto>> GetAllAsync(CancellationToken ct = default)
         {
-            return _cache.Get<CatalogDto>();
+            List<Catalog> list = await _context.Catalogs
+                .AsNoTracking()
+                .Cacheable()
+                .ToListAsync(ct);
+
+            List<CatalogDto> dtos = list.Select(c => c.ToDto()).ToList();
+            return dtos;
         }
 
-        public async Task<CatalogDto> GetAsync(
-            Guid catalogId,
-            CancellationToken ct = default)
+        public async Task<CatalogDto> GetAsync(Guid catalogId,
+                                               CancellationToken ct = default)
         {
-            var catalog = _cache.Get<CatalogDto>(catalogId);
+            Catalog catalog = await _context.Catalogs
+                .AsNoTracking()
+                .Include(c => c.Products)
+                .Cacheable()
+                .SingleOrDefaultAsync(c => c.PublicId == catalogId, ct);
+
             if (catalog == null)
             {
                 throw new NotFoundException($"Catalog with ID: {catalogId} doesn't exist");
             }
 
-            return catalog;
+            CatalogDto dto = catalog.ToDto(includeProducts: true);
+            return dto;
         }
 
-        public async Task<CatalogDto> UpdateAsync(
-            Guid catalogId,
-            CatalogModel model,
-            CancellationToken ct = default)
+        public async Task<CatalogDto> UpdateAsync(Guid catalogId,
+                                                  CatalogModel model,
+                                                  CancellationToken ct = default)
         {
-            var catalogs = _cache.Get<CatalogDto>();
-            if (catalogs.Any(x => x.Name == model.Name && x.Id != catalogId))
+            Catalog catalog = await _context.Catalogs
+                .SingleOrDefaultAsync(x => x.PublicId == catalogId, ct);
+            if (catalog == null)
+            {
+                throw new NotFoundException($"Catalog with ID: {catalogId} doesn't exist");
+            }
+
+            Catalog duplicate = await _context.Catalogs
+                .AsNoTracking()
+                .SingleOrDefaultAsync(c => c.Name == model.Name && c.PublicId != catalogId, ct);
+
+            if (duplicate != null)
             {
                 throw new ConflictException($"Catalog with name {model.Name} already exists");
             }
 
-            var catalog = catalogs.SingleOrDefault(x => x.Id == catalogId);
-            if (catalog == null)
-            {
-                throw new NotFoundException($"Catalog with ID: {catalogId} doesn't exist");
-            }
-
             catalog.Name = model.Name;
             catalog.Description = model.Description;
-            _cache.Set(catalog);
-            return catalog;
+
+            _context.Catalogs.Update(catalog);
+            await _context.SaveChangesAsync(ct);
+            CatalogDto dto = catalog.ToDto();
+            return dto;
         }
     }
 }

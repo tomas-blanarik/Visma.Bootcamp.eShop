@@ -40,17 +40,16 @@ namespace Visma.Bootcamp.eShop.Controllers
             return Ok(listOfCatalogs);
         }
 
-        [HttpGet("{catalog_id}/products", Name = GetCatalogRouteName)]
+        [HttpGet("{catalog_id}", Name = GetCatalogRouteName)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CatalogDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(NotFoundError))]
         [SwaggerOperation(
             summary: "Retrieve catalogue based on its Id",
             description: "Return catalog given by catalogId and all its products associated to it",
             OperationId = "GetCatalog",
-            Tags = new[] { "Product API" })]
-        public async Task<IActionResult> GetCatalogAsync(
-            [Required, FromRoute(Name = "catalog_id")] Guid? catalogId,
-            CancellationToken ct)
+            Tags = new[] { "Catalog API" })]
+        public async Task<IActionResult> GetCatalogAsync([Required, FromRoute(Name = "catalog_id")] Guid? catalogId,
+                                                         CancellationToken ct)
         {
             CatalogDto catalogDto = await _catalogService.GetAsync(catalogId.Value, ct);
             return Ok(catalogDto);
@@ -64,9 +63,8 @@ namespace Visma.Bootcamp.eShop.Controllers
             description: "Create new catalog in the database",
             OperationId = "CreateCatalog",
             Tags = new[] { "Catalog Management" })]
-        public async Task<IActionResult> CreateCatalogAsync(
-            [FromBody, Bind] CatalogModel model,
-            CancellationToken ct)
+        public async Task<IActionResult> CreateCatalogAsync([FromBody, Bind] CatalogModel model,
+                                                            CancellationToken ct)
         {
             CatalogDto catalogDto = await _catalogService.CreateAsync(model, ct);
             return CreatedAtAction(
@@ -84,10 +82,9 @@ namespace Visma.Bootcamp.eShop.Controllers
             description: "Create new catalog in the database",
             OperationId = "UpdateCatalog",
             Tags = new[] { "Catalog Management" })]
-        public async Task<IActionResult> UpdateCatalogAsync(
-            [Required, FromRoute(Name = "catalog_id")] Guid? catalogId,
-            [FromBody, Bind] CatalogModel model,
-            CancellationToken ct)
+        public async Task<IActionResult> UpdateCatalogAsync([Required, FromRoute(Name = "catalog_id")] Guid? catalogId,
+                                                            [FromBody, Bind] CatalogModel model,
+                                                            CancellationToken ct)
         {
             CatalogDto catalogDto = await _catalogService.UpdateAsync(catalogId.Value, model, ct);
             return Ok(catalogDto);
@@ -101,9 +98,8 @@ namespace Visma.Bootcamp.eShop.Controllers
             description: "Delete catalog from the database with all its products",
             OperationId = "DeleteCatalog",
             Tags = new[] { "Catalog Management" })]
-        public async Task<IActionResult> DeleteCatalogAsync(
-            [Required, FromRoute(Name = "catalog_id")] Guid? catalogId,
-            CancellationToken ct)
+        public async Task<IActionResult> DeleteCatalogAsync([Required, FromRoute(Name = "catalog_id")] Guid? catalogId,
+                                                            CancellationToken ct)
         {
             await _catalogService.DeleteAsync(catalogId.Value, ct);
             return NoContent();
@@ -117,14 +113,13 @@ namespace Visma.Bootcamp.eShop.Controllers
             description: "Create product in the database and associate it with catalog",
             OperationId = "CreateProductWithCatalogId",
             Tags = new[] { "Product Management" })]
-        public async Task<IActionResult> AddProductToCatalogAsync(
-            [Required, FromRoute(Name = "catalog_id")] Guid? catalogId,
-            [Bind, FromBody] ProductModel model,
-            [FromServices] IProductService productService,
-            CancellationToken ct)
+        public async Task<IActionResult> AddProductToCatalogAsync([Required, FromRoute(Name = "catalog_id")] Guid? catalogId,
+                                                                  [Bind, FromBody] ProductModel model,
+                                                                  [FromServices] IProductService productService,
+                                                                  CancellationToken ct)
         {
             ProductDto productDto = await productService.CreateAsync(catalogId.Value, model, ct);
-            return CreatedAtAction(
+            return CreatedAtRoute(
                 ProductsController.GetProductRouteName,
                 new { product_id = productDto.PublicId },
                 productDto);

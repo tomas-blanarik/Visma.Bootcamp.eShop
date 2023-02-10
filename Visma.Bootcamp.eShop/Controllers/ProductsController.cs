@@ -29,9 +29,9 @@ namespace Visma.Bootcamp.eShop.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(NotFoundError))]
         [SwaggerOperation(
-            summary: "Create product in existing catalog",
-            description: "Create product in the database and associate it with catalog",
-            OperationId = "CreateProduct",
+            summary: "Get product by identificator",
+            description: "Get product by its identificator",
+            OperationId = "GetProduct",
             Tags = new[] { "Product API" })]
         public async Task<IActionResult> GetProductAsync(
             [Required, FromRoute(Name = "product_id")] Guid? productId,

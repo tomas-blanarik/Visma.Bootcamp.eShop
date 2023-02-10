@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using EFCoreSecondLevelCacheInterceptor;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,7 +25,7 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.DependencyInjection
             IWebHostEnvironment environment)
         {
             AddAutoMapper(services);
-            //AddDatabase(services, configuration);
+            AddDatabase(services, configuration);
             AddLogging(services, environment);
             AddServices(services);
             AddCache(services);
@@ -57,17 +58,22 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.DependencyInjection
 
         private static void AddDatabase(IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<ApplicationContext>(options =>
+            services.AddEFSecondLevelCache(options =>
+                options.UseMemoryCacheProvider()
+                    .DisableLogging(false)
+                    .UseCacheKeyPrefix("EF_")            );
+
+            services.AddDbContext<ApplicationContext>((sp, options) =>
             {
                 string connectionString = configuration.GetConnectionString("DefaultConnection");
-                options.UseInMemoryDatabase("Visma.Bootcamp.eShop-db");
-                //options.UseMySql(
-                //    connectionString,
-                //    ServerVersion.AutoDetect(connectionString),
-                //    opts =>
-                //    {
-                //        opts.MigrationsAssembly("Visma.Bootcamp.eShop.ApplicationCore");
-                //    });
+                //options.UseInMemoryDatabase("Visma.Bootcamp.eShop-db");
+                options.UseMySql(
+                   connectionString,
+                   ServerVersion.AutoDetect(connectionString),
+                   opts =>
+                   {
+                       opts.MigrationsAssembly("Visma.Bootcamp.eShop.ApplicationCore");
+                   }).AddInterceptors(sp.GetRequiredService<SecondLevelCacheInterceptor>());
                 options.EnableDetailedErrors();
                 options.EnableSensitiveDataLogging();
             });
@@ -81,7 +87,7 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.DependencyInjection
         private static void AddCache(IServiceCollection services)
         {
             services.AddMemoryCache();
-            services.AddSingleton<CacheManager>();
+            services.AddSingleton<Infrastructure.CacheManager>();
         }
         #endregion
     }

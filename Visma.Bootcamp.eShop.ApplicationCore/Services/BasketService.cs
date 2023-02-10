@@ -12,9 +12,9 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Services
 {
     public class BasketService : IBasketService
     {
-        private readonly CacheManager _cache;
+        private readonly Infrastructure.CacheManager _cache;
 
-        public BasketService(CacheManager cache)
+        public BasketService(Infrastructure.CacheManager cache)
         {
             _cache = cache;
         }
