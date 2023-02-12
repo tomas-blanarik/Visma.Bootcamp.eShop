@@ -6,5 +6,6 @@ namespace Visma.Bootcamp.ApiTests.Infrastructure
     {
         public static CatalogActions Catalog = new CatalogActions();
         public static ProductActions Product = new ProductActions();
+        public static OrderActions Order = new OrderActions();
     }
 }

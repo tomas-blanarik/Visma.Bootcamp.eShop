@@ -1,5 +1,8 @@
-﻿using System;
+﻿using System.Linq;
+using System.Collections.Generic;
+using System;
 using System.ComponentModel.DataAnnotations;
+using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
 
 namespace Visma.Bootcamp.eShop.ApplicationCore.Entities.Domain
 {
@@ -12,6 +15,32 @@ namespace Visma.Bootcamp.eShop.ApplicationCore.Entities.Domain
         [Required]
         public Guid? PublicId { get; set; }
 
-        // TODO: domain model for order
+        [Required]
+        public DateTime? CreatedDate { get; set; }
+        public string UserId { get; set; } = "Tomas";
+        public virtual ICollection<OrderItem> Items { get; set; }
+
+        public OrderDto ToDto(bool includeItems = false)
+        {
+            return new OrderDto
+            {
+                PublicId = this.PublicId,
+                CreatedDate = this.CreatedDate,
+                Items = includeItems
+                    ? this.Items.Select(i => i.ToDto()).ToList()
+                    : null,
+                Amount = includeItems ? CalculateAmount() : 0
+            };
+        }
+
+        private decimal CalculateAmount()
+        {
+            if (this.Items == null || this.Items.Count == 0)
+            {
+                return 0;
+            }
+
+            return this.Items.Sum(i => i.Price * i.Quantity);
+        }
     }
 }
