@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.DTO;
 using Visma.Bootcamp.eShop.ApplicationCore.Entities.Models;
 using Visma.Bootcamp.eShop.ApplicationCore.Services.Interfaces;
@@ -39,14 +39,14 @@ namespace Visma.Bootcamp.eShop.Controllers
             return Ok(listOfCatalogs);
         }
 
-        [HttpGet("{catalog_id}/products", Name = GetCatalogRouteName)]
+        [HttpGet("{catalog_id}", Name = GetCatalogRouteName)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CatalogDto))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [SwaggerOperation(
             summary: "Retrieve catalogue based on its Id",
             description: "Return catalog given by catalogId and all its products associated to it",
             OperationId = "GetCatalog",
-            Tags = new[] { "Product API" })]
+            Tags = new[] { "Catalog API" })]
         public async Task<IActionResult> GetCatalogAsync(
             [Required, FromRoute(Name = "catalog_id")] Guid? catalogId,
             CancellationToken ct)

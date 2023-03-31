@@ -1,6 +1,6 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using System.Threading.Tasks;
 using Visma.Bootcamp.eShop.ApplicationCore.Database;
 using Visma.Bootcamp.eShop.ApplicationCore.DependencyInjection;
 
