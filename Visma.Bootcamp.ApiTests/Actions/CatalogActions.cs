@@ -67,7 +67,7 @@ namespace Visma.Bootcamp.ApiTests.Actions
 
         public RestResponse<CatalogDto> GetCatalog(Guid id)
         {
-            var request = CreateRequest(Method.Get, $"{id}/products");
+            var request = CreateRequest(Method.Get, $"{id}");
             var result = Execute<CatalogDto>(request);
 
             if (result.Data != null)
@@ -80,7 +80,7 @@ namespace Visma.Bootcamp.ApiTests.Actions
 
         public RestResponse<List<CatalogBaseDto>> GetAllCatalogs()
         {
-            var request = CreateRequest(Method.Get, $"");
+            var request = CreateRequest(Method.Get, "");
             var result = Execute<List<CatalogBaseDto>>(request);
 
             if (result.Data != null)
